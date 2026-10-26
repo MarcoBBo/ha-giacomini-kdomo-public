@@ -1,0 +1,66 @@
+{
+  "title": "Giacomini K-Domo",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Collega K-Domo",
+        "description": "Usa il tuo account dell’app ufficiale. Verrà importato solo l’impianto selezionato. I controlli sono inizialmente disabilitati. Le credenziali vengono conservate nella configurazione di Home Assistant.",
+        "data": {
+          "username": "Nome utente / email",
+          "password": "Password"
+        }
+      },
+      "plant": {
+        "title": "Scegli un impianto",
+        "description": "Importa i termostati di questo impianto. Nessuna impostazione verrà modificata.",
+        "data": {
+          "plant_id": "Impianto"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Accedi di nuovo",
+        "description": "Inserisci la password dell’account già configurato. Se richiesto, completa prima l’accettazione della privacy nell’app ufficiale.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Accesso rifiutato. Controlla le credenziali K-Domo.",
+      "cannot_connect": "Connessione a K-Domo non riuscita o risposta cloud non supportata. Riprova più tardi.",
+      "privacy_required": "Apri l’app ufficiale K-Domo e completa prima l’accettazione della privacy.",
+      "plant_unavailable": "L’impianto selezionato non è accessibile da questo account."
+    },
+    "abort": {
+      "already_configured": "Questo account e impianto sono già configurati.",
+      "no_plants": "Nessun impianto disponibile per questo account."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni K-Domo",
+        "description": "Abilita i controlli quando vuoi usarli. I comandi conservano la pianificazione. Il manuale temporaneo può terminare al cambio di fascia nativo. La sola variazione del setpoint conserva lo stato acceso/spento.",
+        "data": {
+          "write_enabled": "Abilita i controlli dei termostati",
+          "poll_interval": "Intervallo di lettura (60–600 secondi)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperatura"
+      },
+      "humidity": {
+        "name": "Umidità"
+      }
+    },
+    "binary_sensor": {
+      "online": {
+        "name": "Connessione cloud"
+      }
+    }
+  }
+}

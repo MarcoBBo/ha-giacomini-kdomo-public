@@ -1,0 +1,21 @@
+name: Proposta di funzione
+description: Descrivi un caso d’uso o una funzione mancante.
+title: "[Feature] "
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Quale esigenza risolve?
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Comportamento desiderato
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibilità e vincoli conosciuti
+      description: Non allegare identificativi reali o credenziali.

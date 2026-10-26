@@ -1,0 +1,36 @@
+name: Segnalazione problema
+description: Segnala un comportamento inatteso dell’integrazione.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: Non includere password, token, email, seriali, indirizzi o configurazioni complete.
+  - type: input
+    id: ha_version
+    attributes:
+      label: Versione Home Assistant
+    validations:
+      required: true
+  - type: input
+    id: integration_version
+    attributes:
+      label: Versione integrazione
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamento atteso
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportamento osservato e passi per riprodurlo
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostica anonimizzata o messaggio di errore
+      description: Usa la diagnostica dell’integrazione. Controlla il contenuto prima di allegarlo.

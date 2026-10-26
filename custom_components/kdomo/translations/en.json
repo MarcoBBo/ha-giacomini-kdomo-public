@@ -1,0 +1,66 @@
+{
+  "title": "Giacomini K-Domo",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to K-Domo",
+        "description": "Use your official K-Domo account. Only the plant you select will be imported. Controls start disabled. Credentials are stored in Home Assistant configuration.",
+        "data": {
+          "username": "Username / email",
+          "password": "Password"
+        }
+      },
+      "plant": {
+        "title": "Choose a plant",
+        "description": "Import thermostats from this plant. No device settings will be changed.",
+        "data": {
+          "plant_id": "Plant"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Sign in again",
+        "description": "Enter the password for the existing account. If needed, complete privacy acceptance in the official app first.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Authentication rejected. Check your K-Domo credentials.",
+      "cannot_connect": "Cannot connect to K-Domo, or the cloud returned an unsupported response. Try again later.",
+      "privacy_required": "Open the official K-Domo app and complete privacy acceptance first.",
+      "plant_unavailable": "The selected plant is not accessible from this account."
+    },
+    "abort": {
+      "already_configured": "This account and plant are already configured.",
+      "no_plants": "No plants are available on this account."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "K-Domo options",
+        "description": "Enable controls only when ready to use them. Commands preserve schedules. Temporary manual mode may end at a native schedule transition. A target change by itself preserves the current on/off status.",
+        "data": {
+          "write_enabled": "Enable thermostat controls",
+          "poll_interval": "Polling interval (60–600 seconds)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperature"
+      },
+      "humidity": {
+        "name": "Humidity"
+      }
+    },
+    "binary_sensor": {
+      "online": {
+        "name": "Cloud connection"
+      }
+    }
+  }
+}

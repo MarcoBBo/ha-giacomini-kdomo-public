@@ -1,0 +1,175 @@
+[
+  {
+    "path": "sources/eu/kblue/kult/BuildConfig.java",
+    "sha256": "d3f1afa5c324a05877842d82f105db6ce79d7951aeda4e7dc2b69e42d7169c99",
+    "lines": 17,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/KBlueApp.java",
+    "sha256": "0a95fd3c746aa3642aee51785ad37457a6269ca43ab76a37fd52a33f3f6f01ea",
+    "lines": 148,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/KBlueApi.java",
+    "sha256": "023e420fb6f8edd2378c9c766a8b2b648256637fad1e3648d32a8b2f7ae81b29",
+    "lines": 216,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/RetrofitModule.java",
+    "sha256": "ec513516724d48db076e6d2d0e359d0bc5ffbb32bfdb2672ad16b8e62f726704",
+    "lines": 61,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/AuthTokenInterceptor.java",
+    "sha256": "c18f1595cf0480b6d247d60107ed774bb58ad295203b01a14384f3298e6d35af",
+    "lines": 20,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/AuthenticationInterceptor.java",
+    "sha256": "447a8573235159c3ca786c411a62ffb4ceec94b0aa012b83d49e4e1ce42abaa2",
+    "lines": 19,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/model/LoginReqModel.java",
+    "sha256": "077142e5b9f1fefd1910cebceab00c0e570b043190f876d9efa07cba39c4f145",
+    "lines": 12,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/model/LoginRespModel.java",
+    "sha256": "3f30bd993b4672d77507a97042f97939fc66363bdd4719be60fa179ad97b9958",
+    "lines": 13,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/helper/LoginHelper.java",
+    "sha256": "5e28df5809722ee709ec466f39f1de9270e102c267198bc28e8c209b4e9d28e1",
+    "lines": 34,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/model/PlantListRespModel.java",
+    "sha256": "be27efaa9077e04c8ff2d586a85729fa127099652d341410fc107a7efa2d6681",
+    "lines": 12,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/model/PlantDetailRespModel.java",
+    "sha256": "b2c4737a643c19e6fd8094ad4feaccf68fad6aacfcf65c17e4a2e9419a5811b0",
+    "lines": 68,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/model/ThermostatRespModel.java",
+    "sha256": "474eb3d89f5c2a4ebd6d12ee5bd556c75d629d4a28a52774cb193e4ca3697e55",
+    "lines": 19,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/model/MeasurementModel.java",
+    "sha256": "9f8bf5aa3b99654d1f6572638f85f84590cd15906e5a8a6908faf15d27b74601",
+    "lines": 19,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/model/SendCommandModel.java",
+    "sha256": "6f54ff78b7bd7b68d0cc04c74f75551f9bb88f543e9a316521e664ffca6f9a8e",
+    "lines": 215,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/model/ComandModel.java",
+    "sha256": "0b93e20fbe27b58aa1fdb4657d815fae54f7bb391a8a27248f7e9908c1e9c36c",
+    "lines": 43,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/http/helper/ThermostatsHelper.java",
+    "sha256": "aa020251ca0689ea74ac4d4439fe1f09e08353bb92343d503042d416285107f1",
+    "lines": 227,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/utility/Constants.java",
+    "sha256": "8be0119e8795707a1c4393824a47c40af5744b1efbf2a7d1eaa760ac55158d2a",
+    "lines": 170,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/utility/Definitions.java",
+    "sha256": "d7d9b1c27a93620a28badd0e11acd20f448a3b9afc3687674bf3b57832ca0536",
+    "lines": 51,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/utility/Enums.java",
+    "sha256": "099674d5917cf11df6b1b0c153f1e6a3cd003c6f15acf8342d19f4e0976e65f7",
+    "lines": 160,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/element/Thermostat.java",
+    "sha256": "365c50e6568e7d4a2b32095c090fb6916498369366712f8d2eaad2b3511831d7",
+    "lines": 145,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/database/entities/MeasurementEntity.java",
+    "sha256": "560017f2e4f42979eae380bfa40c95cfb4264e8d4711ee83c8d01a10398b973a",
+    "lines": 108,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/feature/thermostat/ThermostatFragment.java",
+    "sha256": "a9a88393a69a1aebf0a0fd2c3cb53cb2ab436baec364e01b69bce5a67fa1810d",
+    "lines": 506,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/feature/thermostat/ThermostatActivity.java",
+    "sha256": "3f77b22bc944447e2d2327092ed322203f855610c02f12c8d5dd6308febd25aa",
+    "lines": 388,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/feature/splash/SplashActivity.java",
+    "sha256": "c7594236619ca5d6e8b70f538aeb8eb026d8d09574017532cb320707327beaa9",
+    "lines": 116,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/feature/login/LoginActivity.java",
+    "sha256": "511505604d3b768104e571180ab524e14cde8a5de642ca4cf63719568d7ab001",
+    "lines": 173,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/element/Program.java",
+    "sha256": "cc058a3d5627e95e045fcfec37e137e28157a5cfa987178388a4da9c3e3aa494",
+    "lines": 123,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/element/Schedule.java",
+    "sha256": "5b7023ec988edc47dbbb2fd0f0ab79758ece88b6589f04f47f75ec584cdcd9bd",
+    "lines": 82,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "sources/eu/kblue/kult/feature/thermostat/TimelineEditActivity.java",
+    "sha256": "412cdaaff3cd6734ea8ec6b4115432eeb30ddcbd507fbd6d9f5d89c52c500268",
+    "lines": 110,
+    "contains_method_not_decompiled": false
+  },
+  {
+    "path": "resources/AndroidManifest.xml",
+    "sha256": "dc592adce36793be81ff60f27b6e40d417fb8783e7d9a1cc4bbacc5f8db02d14",
+    "lines": 285
+  }
+]

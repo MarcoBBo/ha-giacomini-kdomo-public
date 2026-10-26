@@ -1,0 +1,454 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Independent K-Domo cloud interoperability specification",
+    "version": "0.1.0",
+    "description": "Reconstructed from Android 1.7.0-RC9 and authorized cloud tests on 2026-10-26. Not an official vendor API. Basic operations only; fixed manual and schedule writes are not validated."
+  },
+  "servers": [
+    {
+      "url": "https://giacomini.kblue.cloud"
+    }
+  ],
+  "security": [
+    {
+      "KdomoToken": []
+    }
+  ],
+  "paths": {
+    "/auth/v2": {
+      "post": {
+        "operationId": "login",
+        "security": [],
+        "description": "Do not automatically accept privacy terms. Keep credentials and returned token secret. No refresh endpoint was identified.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "writeOnly": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "token",
+                    "privacyAccepted"
+                  ],
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "privacyAccepted": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication rejected"
+          }
+        }
+      }
+    },
+    "/plants": {
+      "get": {
+        "operationId": "listPlants",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Plant"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/thermostats/{plantId}/{resourceId}/lasts/parameters/{parameters}": {
+      "get": {
+        "operationId": "readMeasurements",
+        "parameters": [
+          {
+            "name": "plantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "parameters",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Comma-separated names, e.g. temperature,humidity,currentsetpoint,mode,program,status,scale,fancoil"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Measurement"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/thermostats/{plantId}/{resourceId}/isonline": {
+      "get": {
+        "operationId": "readOnline",
+        "parameters": [
+          {
+            "name": "plantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/thermostats/{plantId}/{resourceId}/sendCommand/02": {
+      "post": {
+        "operationId": "sendSettings",
+        "description": "Read/modify/write the entire group. Preserve program/fancoil and preserve status unless explicitly changing on/off. A 2xx response is NOT proof of application. Never replay an uncertain POST.",
+        "parameters": [
+          {
+            "name": "plantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Settings02"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command metadata, not device confirmation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CommandMetadata"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "KdomoToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Auth-Token",
+        "description": "Raw token, no Bearer prefix"
+      }
+    },
+    "schemas": {
+      "Settings02": {
+        "type": "object",
+        "required": [
+          "mode",
+          "program",
+          "status",
+          "currentsetpoint",
+          "fancoil"
+        ],
+        "properties": {
+          "mode": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ],
+            "description": "0 fixed manual is NOT operationally validated. Integration selects only temporary manual 2 or auto 1."
+          },
+          "program": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          "currentsetpoint": {
+            "type": "string",
+            "pattern": "^\\+[0-9]{2,}\\.[0-9]$",
+            "examples": [
+              "+22.0"
+            ]
+          },
+          "fancoil": {
+            "type": "string",
+            "examples": [
+              "0"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Measurement": {
+        "type": "object",
+        "required": [
+          "parameter",
+          "when"
+        ],
+        "properties": {
+          "parameter": {
+            "type": "string"
+          },
+          "resId": {
+            "type": "string"
+          },
+          "when": {
+            "type": "number",
+            "description": "Unix seconds, per measurement"
+          },
+          "intVal": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "doubleVal": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "stringVal": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "description": "Value precedence: stringVal > doubleVal > intVal. Additional metadata may be present."
+      },
+      "Plant": {
+        "type": "object",
+        "required": [
+          "id",
+          "thermostats"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thermostats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Thermostat"
+            }
+          }
+        }
+      },
+      "Thermostat": {
+        "type": "object",
+        "required": [
+          "serial"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "serial": {
+            "type": "string",
+            "description": "Use this resourceId in thermostat paths; never convert to a number."
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isHub": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommandMetadata": {
+        "type": "object",
+        "properties": {
+          "requesttopic": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requestmessage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requesttime": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Unix milliseconds"
+          },
+          "expectreply": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "correlationid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "responsemessage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Detailed protocol and evidence levels",
+    "url": "https://github.com/MarcoBBo/ha-giacomini-kdomo/blob/main/docs/PROTOCOLLO_KDOMO.md"
+  }
+}

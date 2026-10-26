@@ -1,0 +1,27 @@
+name: Offline tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - python: '3.13'
+            requirements: requirements-test-min.txt
+          - python: '3.14'
+            requirements: requirements-test.txt
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -r ${{ matrix.requirements }}
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: pytest --cov=custom_components.kdomo --cov-fail-under=90

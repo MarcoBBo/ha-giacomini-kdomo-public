@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-26",
+  "protocol_version": "0.1.0",
+  "scope": "independent authorized cloud interoperability tests",
+  "public_examples": "synthetic; no account exports included",
+  "cloud_validated": [
+    "HTTPS login",
+    "X-Auth-Token header",
+    "owned plants and thermostat serials",
+    "typed parameter reads",
+    "online state",
+    "program metadata and seven day strings",
+    "settings topic 02",
+    "temporary manual mode 2, on, setpoint 22 C",
+    "restore off/auto/21 C in an earlier test"
+  ],
+  "physically_confirmed": {
+    "observed_setpoint_before_c": 21,
+    "observed_setpoint_after_c": 22,
+    "source": "owner observing the physical thermostat"
+  },
+  "not_validated": [
+    "fixed manual mode 0 application",
+    "physical relay state",
+    "cooling operation",
+    "Fahrenheit on hardware",
+    "schedule or preset writes",
+    "token TTL",
+    "rate limits",
+    "deployment on the owner Home Assistant instance"
+  ],
+  "later_owner_action": "Owner reported turning the thermostat off manually. No subsequent commands were sent for integration development."
+}
