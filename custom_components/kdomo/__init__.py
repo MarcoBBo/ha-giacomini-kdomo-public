@@ -11,7 +11,7 @@ from .const import CONF_PLANT_ID
 from .coordinator import KdomoCoordinator
 from .models import AuthenticationError, KdomoError, PrivacyError
 
-PLATFORMS = [Platform.CLIMATE, Platform.SENSOR, Platform.BINARY_SENSOR]
+PLATFORMS = [Platform.CLIMATE, Platform.SENSOR, Platform.BINARY_SENSOR, Platform.NUMBER]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

@@ -164,8 +164,17 @@ class KdomoClient:
         return decode_measurements(rows, online=online["data"])
 
     async def async_send_settings(self, device: Device, payload: dict[str, Any]) -> None:
-        """Only topic 02 is implemented. An acknowledgement is not state confirmation."""
-        path = f"thermostats/{segment(device.plant_id)}/{segment(device.serial)}/sendCommand/02"
+        """An acknowledgement is not state confirmation."""
+        await self._async_send_command(device, "02", payload)
+
+    async def async_send_presets(self, device: Device, topic: str, payload: dict[str, Any]) -> None:
+        """Only the two preset-temperature groups are accepted."""
+        if topic not in ("10", "11"):
+            raise ProtocolError("Unsupported preset command group")
+        await self._async_send_command(device, topic, payload)
+
+    async def _async_send_command(self, device: Device, topic: str, payload: dict[str, Any]) -> None:
+        path = f"thermostats/{segment(device.plant_id)}/{segment(device.serial)}/sendCommand/{topic}"
         response = await self._request("POST", path, body=payload)
         if not isinstance(response, dict) or not isinstance(response.get("data"), dict):
             raise CommandUncertainError("Command acknowledgement is invalid; delivery unknown")

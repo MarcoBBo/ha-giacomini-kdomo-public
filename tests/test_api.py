@@ -214,3 +214,25 @@ def test_path_segments():
     assert segment("abc/xyz") == "abc%2Fxyz"
     with pytest.raises(ProtocolError):
         segment("..")
+
+
+@pytest.mark.parametrize("topic", ["10", "11"])
+async def test_preset_wire_and_rejection_never_replayed(api, topic):
+    client, cloud = api
+    client._token = "synthetic-token"
+    body = {"heatingtempcomfort" if topic == "10" else "coolingtempcomfort": "+22.0"}
+    cloud.response(payload={"data": {"requesttopic": topic}})
+    await client.async_send_presets(DEVICE, topic, body)
+    assert cloud.calls[0]["path"].endswith("/sendCommand/" + topic)
+    assert cloud.calls[0]["body"] == body
+    cloud.response(401)
+    with pytest.raises(AuthenticationError):
+        await client.async_send_presets(DEVICE, topic, body)
+    assert len(cloud.calls) == 2
+
+
+async def test_preset_invalid_topic_never_sent(api):
+    client, cloud = api
+    with pytest.raises(ProtocolError):
+        await client.async_send_presets(DEVICE, "03", {})
+    assert not cloud.calls

@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
+from .const import PRESET_GROUPS
+
 
 class KdomoError(Exception):
     """A sanitized service error. Never contains server bodies or credentials."""
@@ -166,6 +168,36 @@ def settings_payload(
         "currentsetpoint": format_target(current, state.scale),
         "fancoil": fancoil,
     }
+
+
+def preset_payload(state: Snapshot, parameter: str, value: Any) -> tuple[str, dict[str, Any]]:
+    """Build a complete 10/11 group from a fresh read; never supply missing defaults."""
+    if not state.online or state.error:
+        raise ProtocolError("Device is unavailable")
+    if state.scale not in (0, 1):
+        raise ProtocolError("Unsupported temperature scale")
+    group = next(
+        ((topic, keys, ints) for topic, (keys, ints) in PRESET_GROUPS.items() if parameter in keys), None
+    )
+    if group is None:
+        raise ProtocolError("Unsupported preset temperature")
+    topic, keys, integers = group
+    payload: dict[str, Any] = {}
+    for key in keys:
+        current = state.number(key)
+        if current is None:
+            raise ProtocolError("Incomplete preset temperature group; refresh K-Domo first")
+        formatted = format_target(current, state.scale)
+        if Decimal(formatted) != Decimal(state.values[key]):
+            raise ProtocolError("Preset precision cannot be preserved")
+        payload[key] = formatted
+    for key in integers:
+        current = state.integer(key)
+        if current is None or not -(2**31) <= current < 2**31:
+            raise ProtocolError("Incomplete preset configuration; refresh K-Domo first")
+        payload[key] = current
+    payload[parameter] = format_target(value, state.scale)
+    return topic, payload
 
 
 def values_match(state: Snapshot, payload: dict[str, Any]) -> bool:

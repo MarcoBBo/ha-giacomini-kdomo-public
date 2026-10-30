@@ -1,4 +1,16 @@
-# Validazione della release 0.1.0
+# Validazione
+
+## Release 0.3.0 — 30 ottobre 2026
+
+124 test passati su HA 2026.10.4 / Python 3.14.8, copertura 92,84%. Gli stessi 124 test passano su HA 2026.2.3 / Python 3.13.16, copertura 93,13%. Ruff lint e formato superati. Hassfest locale sul sorgente ufficiale HA 2026.10.4: 1 integrazione, 0 non valide, con la stessa sostituzione del pool processi descritta nel resoconto storico.
+
+Le nuove verifiche coprono tutte e dieci le temperature, payload completi dei gruppi 10/11 e conservazione dei campi non modificati; campi mancanti o invalidi, precisione non preservabile, valori fuori intervallo, scala sconosciuta o cambiata; no-op, scritture disabilitate, conferme incomplete o con timestamp precedenti e nessun rollback/replay.
+
+Il test completo attraversa HA, servizi number, client aiohttp e cloud sintetico su loopback. Verifica anche due richieste contemporanee per temperature diverse dello stesso gruppo, senza perdita di aggiornamenti, una modifica del gruppo raffrescamento e conservazione di modalità, stato, programma e setpoint climate. La conversione Celsius/Fahrenheit passa attraverso il servizio number reale di HA.
+
+Nessuna lettura o scrittura dell’account reale è stata eseguita durante lo sviluppo di 0.3.0. Le nuove scritture richiedono ancora un collaudo fisico autorizzato. Il problema già osservato della conferma del setpoint climate con termostato spento/automatico resta aperto.
+
+## Release 0.1.0 — resoconto storico
 
 Eseguita il 26 ottobre 2026. Nessun nuovo comando è stato inviato all’impianto reale durante lo sviluppo del componente Home Assistant.
 

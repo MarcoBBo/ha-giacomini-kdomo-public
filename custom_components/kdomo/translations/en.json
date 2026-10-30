@@ -61,6 +61,38 @@
       "online": {
         "name": "Cloud connection"
       }
+    },
+    "number": {
+      "heatingtempcomfort": {
+        "name": "Heating Comfort"
+      },
+      "heatingtempcomfortplus": {
+        "name": "Heating Comfort+"
+      },
+      "heatingtempnight": {
+        "name": "Heating Night"
+      },
+      "heatingtempeconomy": {
+        "name": "Heating Economy"
+      },
+      "tempeconomyplus": {
+        "name": "Heating Economy+"
+      },
+      "tempantifreeze": {
+        "name": "Frost protection"
+      },
+      "coolingtempcomfort": {
+        "name": "Cooling Comfort"
+      },
+      "coolingtempcomfortplus": {
+        "name": "Cooling Comfort+"
+      },
+      "coolingtempnight": {
+        "name": "Cooling Night"
+      },
+      "coolingtempeconomy": {
+        "name": "Cooling Economy"
+      }
     }
   }
 }

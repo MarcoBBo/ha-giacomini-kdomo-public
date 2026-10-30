@@ -1,5 +1,6 @@
 """HA config flow -> real async HTTP client -> simulated cloud -> HA service."""
 
+import asyncio
 import time
 from unittest.mock import patch
 
@@ -7,7 +8,7 @@ from aiohttp import web
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
 
-from custom_components.kdomo.const import DOMAIN
+from custom_components.kdomo.const import DOMAIN, PRESET_GROUPS, PRESET_TEMPERATURES
 
 
 async def test_complete_offline_path(hass, aiohttp_server, socket_enabled):
@@ -23,6 +24,9 @@ async def test_complete_offline_path(hass, aiohttp_server, socket_enabled):
         "prog0": "0;Winter;0;0",
     }
     commands = []
+    topics = []
+    values.update(dict.fromkeys(PRESET_TEMPERATURES, "20"))
+    values.update({key: "0" for _, integers in PRESET_GROUPS.values() for key in integers})
 
     async def handle(request):
         if request.path == "/auth/v2":
@@ -55,12 +59,14 @@ async def test_complete_offline_path(hass, aiohttp_server, socket_enabled):
             )
         if request.path.endswith("/isonline"):
             return web.json_response({"data": True})
-        assert request.path.endswith("/sendCommand/02")
+        topic = request.path.rsplit("/", 1)[-1]
+        assert topic in ("02", "10", "11")
         assert request.method == "POST"
         body = await request.json()
         commands.append(body)
+        topics.append(topic)
         values.update({key: str(value) for key, value in body.items()})
-        return web.json_response({"data": {"requesttopic": "02", "expectreply": False}})
+        return web.json_response({"data": {"requesttopic": topic, "expectreply": False}})
 
     app = web.Application()
     app.router.add_route("*", "/{path:.*}", handle)
@@ -105,6 +111,32 @@ async def test_complete_offline_path(hass, aiohttp_server, socket_enabled):
         }
         assert hass.states.get(entity_id).state == "heat"
         assert hass.states.get(entity_id).attributes["temperature"] == 22
+        from homeassistant.helpers import entity_registry as er
+
+        registry = er.async_get(hass)
+
+        async def set_preset(key, target):
+            number_id = registry.async_get_entity_id("number", "kdomo", f"plant-example:serial-example:{key}")
+            await hass.services.async_call(
+                "number", "set_value", {"entity_id": number_id, "value": target}, blocking=True
+            )
+            assert float(hass.states.get(number_id).state) == target
+
+        climate_before = {key: values[key] for key in ("mode", "status", "program", "currentsetpoint")}
+        with patch("custom_components.kdomo.coordinator.VERIFY_DELAYS", (0,)):
+            # Simultaneous services must preserve each other's changes in the same group.
+            await asyncio.gather(
+                set_preset("heatingtempcomfort", 23),
+                set_preset("heatingtempnight", 18),
+            )
+            await set_preset("coolingtempcomfortplus", 25)
+        assert values["heatingtempcomfort"] == "+23.0"
+        assert values["heatingtempnight"] == "+18.0"
+        assert {key: values[key] for key in climate_before} == climate_before
+        assert topics == ["02", "10", "10", "11"]
+        for topic, body in zip(topics[1:], commands[1:], strict=True):
+            temperatures, integers = PRESET_GROUPS[topic]
+            assert set(body) == set(temperatures + integers)
         assert await hass.config_entries.async_unload(entry.entry_id)
         await hass.async_block_till_done()
-        assert len(commands) == 1
+        assert len(commands) == 4

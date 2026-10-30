@@ -21,10 +21,12 @@ from .models import (
     Device,
     KdomoError,
     PrivacyError,
+    ProtocolError,
     RateLimitError,
     Snapshot,
     VerificationError,
     fresh_confirmation,
+    preset_payload,
     settings_payload,
     values_match,
 )
@@ -99,6 +101,8 @@ class KdomoCoordinator(DataUpdateCoordinator[dict[str, Snapshot]]):
         *,
         target: Any = None,
         operation: str | None = None,
+        preset: str | None = None,
+        expected_scale: int | None = None,
     ) -> None:
         """Read/modify/write, then read back. No optimistic state or rollback."""
         if not self.entry.options.get(CONF_WRITE_ENABLED, False):
@@ -108,16 +112,26 @@ class KdomoCoordinator(DataUpdateCoordinator[dict[str, Snapshot]]):
                 self._enforce_backoff()
                 before = await self.client.async_state(device)
                 self._publish(device, before)
-                payload = settings_payload(before, target=target, operation=operation)
+                if preset is not None:
+                    if operation is not None or before.scale != expected_scale:
+                        raise ProtocolError("Temperature scale changed; refresh before trying again")
+                    topic, payload = preset_payload(before, preset, target)
+                else:
+                    payload = settings_payload(before, target=target, operation=operation)
                 if values_match(before, payload):
                     return
                 sent_at = time.time()
-                await self.client.async_send_settings(device, payload)
+                if preset is None:
+                    await self.client.async_send_settings(device, payload)
+                else:
+                    await self.client.async_send_presets(device, topic, payload)
                 for delay in VERIFY_DELAYS:
                     await asyncio.sleep(delay)
                     state = await self.client.async_state(device)
                     self._publish(device, state)
-                    if fresh_confirmation(before, state, payload, sent_at):
+                    if (preset is None or state.scale == before.scale) and fresh_confirmation(
+                        before, state, payload, sent_at
+                    ):
                         return
                 raise VerificationError(
                     "Requested state was not confirmed. Check K-Domo before trying again."

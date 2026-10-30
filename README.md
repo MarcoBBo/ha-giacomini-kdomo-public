@@ -2,7 +2,7 @@
 
 Integrazione indipendente per controllare i termostati Giacomini K-Domo attraverso il cloud. Espone dispositivi, entità clima, temperatura, umidità e stato della connessione in Home Assistant.
 
-Versione 0.1.0 alpha. I controlli partono disabilitati e si attivano dalle opzioni. L’integrazione conserva le pianificazioni già impostate in K-Domo.
+Versione 0.3.0 alpha. I controlli partono disabilitati e si attivano dalle opzioni. L’integrazione conserva le pianificazioni già impostate in K-Domo.
 
 Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approvato da Giacomini.
 
@@ -13,11 +13,12 @@ Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approva
 - Sensori di temperatura, umidità e connessione cloud.
 - Setpoint in manuale temporaneo, accensione e spegnimento.
 - Ritorno al programma automatico corrente.
+- Dieci temperature predefinite modificabili con entità number: sei per riscaldamento e quattro per raffrescamento.
 - Lettura di conferma dopo i comandi.
 - Polling condiviso, gestione degli errori e riautenticazione.
 - Traduzioni italiane e inglesi.
 
-Non sono esposti comandi per manuale permanente, modifica delle fasce orarie, preset, fan-coil, cambio di programma/stagione o geofence.
+Non sono esposti comandi per manuale permanente, modifica delle fasce orarie, selezione di un preset attivo, fan-coil, cambio di programma/stagione o geofence.
 
 ## Compatibilità
 
@@ -54,7 +55,7 @@ Il polling predefinito è di 60 secondi, configurabile tra 60 e 600. Dopo l’ag
 
 ## Entità
 
-Ogni termostato crea una entità climate, un sensore temperatura, un sensore umidità e un sensore binario di connessione. Le entità condividono le stesse letture.
+Ogni termostato crea una entità climate, un sensore temperatura, un sensore umidità e un sensore binario di connessione. Sono presenti anche dieci entità number nella sezione Configurazione del dispositivo. Le entità condividono le stesse letture.
 
 La climate riporta anche gli attributi kdomo_mode, kdomo_status, kdomo_program e kdomo_fancoil. Lo stato “acceso” non indica necessariamente che il relè stia erogando calore. L’integrazione non deduce hvac_action dalla differenza fra temperatura e target.
 
@@ -98,6 +99,35 @@ target:
 ```
 
 HEAT e COOL sono disponibili in base al tipo del programma corrente. Non cambiano automaticamente la stagione o il programma. Il manuale è temporaneo secondo la logica nativa K-Domo: non viene aggiunto un timer di ripristino.
+
+### Modificare le temperature predefinite
+
+Aprire il dispositivo K-Domo in Impostazioni → Dispositivi e servizi e la sezione Configurazione. Sono disponibili:
+
+- Riscaldamento: Comfort, Comfort+, Notte, Economy, Economy+ e Antigelo.
+- Raffrescamento: Comfort, Comfort+, Notte ed Economy.
+
+Le entità sono utilizzabili in dashboard e automazioni tramite number.set_value. Copiare l'entity_id effettivo dall'istanza HA; il seguente è solo un esempio:
+
+```yaml
+action: number.set_value
+target:
+  entity_id: number.example_room_heating_comfort
+data:
+  value: 22
+```
+
+L'unità è quella visualizzata da Home Assistant; HA gestisce la conversione rispetto alla scala del dispositivo. Passo UI di 0,5 nell'unità nativa; precisione del protocollo 0,1. I limiti conservativi sono 0–35 °C o 32–95 °F e non attestano tutti i limiti del firmware.
+
+Cambiare una temperatura predefinita cambia il livello usato dalle fasce che lo richiamano, senza modificare gli orari, selezionare un programma, accendere il termostato o passare in manuale. Se quel livello è in uso, la regolazione può risentirne subito.
+
+La modifica usa i gruppi cloud 10/11: lettura preventiva dell'intero gruppo, conservazione delle altre temperature e dei selettori di regolazione/geofence, un solo invio e conferma tramite rilettura. Se mancano campi necessari, l'azione fallisce senza inviare il comando. I campi assenti o non numerici e le scale sconosciute rendono indisponibili i relativi controlli. I valori non vengono inventati.
+
+Le nuove scritture sono coperte da test su cloud simulato; il collaudo fisico dei gruppi 10/11 resta da eseguire. Il problema già osservato nella conferma del setpoint climate con termostato spento/in automatico non viene risolto da questa versione.
+
+### Aggiornamento da 0.1.0
+
+Sostituire la cartella custom_components/kdomo con quella di 0.3.0 e riavviare HA. Non rimuovere e ricreare la configurazione: le entità esistenti e le opzioni vengono mantenute. Se i controlli erano già abilitati, restano abilitati anche per le nuove temperature. L'aggiornamento non invia comandi.
 
 ## Limiti
 
@@ -144,4 +174,4 @@ Usare le [issue del repository](https://github.com/MarcoBBo/ha-giacomini-kdomo/i
 
 Per sviluppo, test e build consultare CONTRIBUTING.md. Il progetto è distribuito con [licenza MIT](LICENSE); i nomi e i marchi di terzi restano dei rispettivi titolari, come indicato in [NOTICE.md](NOTICE.md).
 
-English: independent Giacomini K-Domo cloud integration for Home Assistant. UI setup, plant selection, climate and environmental entities, temporary manual targets and native schedule resume. Controls are disabled by default. Fixed manual mode and schedule editing are not exposed.
+English: independent Giacomini K-Domo cloud integration for Home Assistant. UI setup, plant selection, climate and environmental entities, temporary manual targets, native schedule resume and ten configurable temperature levels. Controls are disabled by default. Fixed manual mode and schedule editing are not exposed.

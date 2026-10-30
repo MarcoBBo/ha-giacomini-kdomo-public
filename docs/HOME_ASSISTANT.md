@@ -1,6 +1,6 @@
 # Architettura Home Assistant
 
-Decisioni del 26 ottobre 2026, per la release 0.1.0 alpha.
+Architettura della release 0.3.0 alpha, aggiornata il 30 ottobre 2026.
 
 ## Perché una integrazione
 
@@ -12,12 +12,13 @@ La custom integration funziona senza Supervisor. Una eventuale futura web app po
 
 | Modulo | Responsabilità |
 | --- | --- |
-| `api.py` | HTTP asincrono aiohttp, autenticazione, discovery, letture, solo POST topic 02 |
+| `api.py` | HTTP asincrono aiohttp, autenticazione, discovery, letture, POST topic 02, 10 e 11 |
 | `models.py` | Decodifica tipizzata, enum validi, limiti, costruzione del gruppo e conferma fresca |
 | `config_flow.py` | Login, scelta impianto, blocco duplicati, riautenticazione e opzioni |
 | `coordinator.py` | Polling condiviso, errori, backoff, serializzazione delle transazioni |
 | `entity.py` | Identità stabile, registro dispositivi e disponibilità |
 | `climate.py` | Mapping HVAC e servizi clima standard |
+| `number.py` | Dieci temperature predefinite, servizi number standard e conversione unità |
 | `sensor.py` | Temperatura e umidità |
 | `binary_sensor.py` | Online riportato dal cloud |
 | `diagnostics.py` | Diagnostica con whitelist di campi non identificativi |
@@ -58,7 +59,7 @@ La diagnostica non serializza l’intera ConfigEntry o oggetti aiohttp: restitui
 
 `OFF` corrisponde a status 0. `AUTO` corrisponde a status 1 e mode 1. `HEAT`/`COOL` rappresentano manuale attivo e sono scelti usando il tipo del programma corrente, non una ipotesi sulla stagione dell’anno. Un mode 0 già presente può essere letto e mostrato, ma non viene offerto un comando per selezionarlo.
 
-Non si esprimono Eco, Comfort e Night come preset modificabili senza implementare e validare i relativi gruppi. `hvac_action` resta sconosciuto perché non è stata verificata la telemetria del relè.
+I livelli termici sono esposti come entità number di configurazione, non come selezione del preset climate. I gruppi 10/11 preservano tutte le temperature e i selettori interi; un gruppo incompleto blocca la scrittura. Sono disponibili anche i livelli della stagione non attiva. Non si cambia il programma per modificarli. La conferma richiede che tutti i campi inviati coincidano e che i campi modificati abbiano timestamp successivi al comando; la scala deve restare invariata. Le nuove scritture non sono ancora collaudate sul dispositivo reale. `hvac_action` resta sconosciuto perché non è stata verificata la telemetria del relè.
 
 ## Compatibilità realmente verificata
 
