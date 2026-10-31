@@ -37,7 +37,7 @@ Questa integrazione è in versione alpha. Prima di installarla, leggere i limiti
 1. Scaricare il repository oppure clonarlo:
 
 ```sh
-git clone https://github.com/MarcoBBo/ha-giacomini-kdomo.git
+git clone https://github.com/MarcoBBo/ha-giacomini-kdomo-public.git
 ```
 
 2. Copiare la cartella custom_components/kdomo nella directory di configurazione di HA. Il percorso finale deve essere config/custom_components/kdomo/manifest.json.
@@ -47,7 +47,7 @@ git clone https://github.com/MarcoBBo/ha-giacomini-kdomo.git
 
 ### HACS / Marketplace
 
-Aggiungere `https://github.com/MarcoBBo/ha-giacomini-kdomo` come repository personalizzato di tipo **Integrazione**, quindi scaricare la versione desiderata e riavviare Home Assistant. Il progetto non è presente nel catalogo predefinito. In Home Assistant 2026.11 e successivi, verificare la disponibilità del Marketplace integrato. Conservare la configurazione esistente quando si aggiorna; non rimuovere e ricreare l'integrazione. La scheda visuale richiede inoltre la registrazione della risorsa descritta sotto.
+Aggiungere `https://github.com/MarcoBBo/ha-giacomini-kdomo-public` come repository personalizzato di tipo **Integrazione**, quindi scaricare la versione desiderata e riavviare Home Assistant. Il progetto non è presente nel catalogo predefinito. In Home Assistant 2026.11 e successivi, verificare la disponibilità del Marketplace integrato. Conservare la configurazione esistente quando si aggiorna; non rimuovere e ricreare l'integrazione. La scheda visuale richiede inoltre la registrazione della risorsa descritta sotto.
 
 ## Configurazione
 
@@ -220,7 +220,7 @@ La specifica del protocollo descrive il contratto tecnico. I risultati della val
 
 ## Supporto e contributi
 
-Usare le [issue del repository](https://github.com/MarcoBBo/ha-giacomini-kdomo/issues), indicando versione HA, versione dell’integrazione, comportamento atteso e osservato. Allegare solo diagnostica anonimizzata.
+Usare le [issue del repository](https://github.com/MarcoBBo/ha-giacomini-kdomo-public/issues), indicando versione HA, versione dell’integrazione, comportamento atteso e osservato. Allegare solo diagnostica anonimizzata.
 
 Per sviluppo, test e build consultare CONTRIBUTING.md. Il progetto è distribuito con [licenza MIT](LICENSE); i nomi e i marchi di terzi restano dei rispettivi titolari, come indicato in [NOTICE.md](NOTICE.md).
 

@@ -1,6 +1,6 @@
 # Segnalazioni di sicurezza
 
-Non pubblicare dettagli di vulnerabilità in issue o discussioni. Per segnalare un problema, usare la segnalazione privata dalla pagina [Security](https://github.com/MarcoBBo/ha-giacomini-kdomo/security) se disponibile; altrimenti aprire una issue senza dettagli sensibili chiedendo al maintainer un canale privato.
+Non pubblicare dettagli di vulnerabilità in issue o discussioni. Per segnalare un problema, usare la segnalazione privata dalla pagina [Security](https://github.com/MarcoBBo/ha-giacomini-kdomo-public/security) se disponibile; altrimenti aprire una issue senza dettagli sensibili chiedendo al maintainer un canale privato.
 
 Non inserire password, token, email dell’account, seriali reali, indirizzi degli impianti, esportazioni .storage, header HTTP o chiavi private. Se una credenziale è stata esposta, cambiarla tramite il servizio ufficiale e seguirne le istruzioni di revoca; cancellare il testo non invalida necessariamente il token.
 

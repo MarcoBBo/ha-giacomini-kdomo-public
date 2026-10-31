@@ -1,6 +1,6 @@
 # Distribuzione del progetto
 
-Repository: https://github.com/MarcoBBo/ha-giacomini-kdomo. Maintainer: MarcoBBo.
+Repository: https://github.com/MarcoBBo/ha-giacomini-kdomo-public. Maintainer: MarcoBBo.
 
 ## Installazione e aggiornamenti
 
