@@ -13,9 +13,8 @@ for (const name of [
   "CustomEvent",
 ])
   globalThis[name] = dom.window[name];
-const { KdomoScheduleCard, validateWeek, splitSlot } = await import(
-  "../../custom_components/kdomo/frontend/kdomo-schedule-card.js"
-);
+const { KdomoScheduleCard, KdomoThermostatsCard, validateWeek, splitSlot } =
+  await import("../../custom_components/kdomo/frontend/kdomo-schedule-card.js");
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const base = () => ({
   program: 0,
@@ -332,5 +331,94 @@ test("accessible slot picker reaches every day and tiny intervals", async () => 
     /Domenica · 23:00–24:00/,
   );
   assert.equal(f.calls.length, 1);
+  f.dispose();
+});
+
+test("compact thermostat panel shows only the selected device's temperatures and opens native controls", async () => {
+  const f = await fixture();
+  f.calls.length = 0;
+  const original = f.hass.callWS;
+  f.hass.states["climate.studio"].state = "auto";
+  f.hass.states["climate.studio"].attributes.current_temperature = 20.5;
+  f.hass.states["number.studio_comfort"] = {
+    state: "21",
+    attributes: { unit_of_measurement: "°C" },
+  };
+  f.hass.states["number.other_comfort"] = {
+    state: "30",
+    attributes: { unit_of_measurement: "°C" },
+  };
+  f.hass.callWS = async (request) =>
+    request.type === "config/entity_registry/list"
+      ? [
+          {
+            entity_id: "climate.studio",
+            platform: "kdomo",
+            device_id: "studio",
+            unique_id: "plant:one:climate",
+          },
+          {
+            entity_id: "number.studio_comfort",
+            platform: "kdomo",
+            device_id: "studio",
+            unique_id: "plant:one:heatingtempcomfort",
+          },
+          {
+            entity_id: "number.other_comfort",
+            platform: "kdomo",
+            device_id: "other",
+            unique_id: "plant:two:heatingtempcomfort",
+          },
+        ]
+      : original(request);
+  const card = new KdomoThermostatsCard();
+  card.setConfig({ entities: ["climate.studio"] });
+  card.hass = f.hass;
+  document.body.append(card);
+  card.shadowRoot.querySelector(".room").click();
+  await tick();
+  assert.match(card.shadowRoot.querySelector("dialog").textContent, /20.5/);
+  [...card.shadowRoot.querySelectorAll(".tab")]
+    .find((x) => x.textContent === "Temperature")
+    .click();
+  assert.match(card.shadowRoot.querySelector(".panel").textContent, /21 °C/);
+  assert.doesNotMatch(
+    card.shadowRoot.querySelector(".panel").textContent,
+    /30 °C/,
+  );
+  let opened;
+  card.addEventListener("hass-more-info", (event) => {
+    opened = event.detail.entityId;
+  });
+  card.shadowRoot.querySelector(".preset").click();
+  assert.equal(opened, "number.studio_comfort");
+  assert.equal(f.calls.length, 0);
+  card.remove();
+  f.dispose();
+});
+
+test("compact panel never permits schedule writes even when integration writes are enabled", async () => {
+  const f = await fixture({ enabled: true });
+  f.calls.length = 0;
+  f.hass.states["climate.studio"].state = "auto";
+  const original = f.hass.callWS;
+  f.hass.callWS = async (request) =>
+    request.type === "config/entity_registry/list" ? [] : original(request);
+  const card = new KdomoThermostatsCard();
+  card.setConfig({ entities: ["climate.studio"] });
+  card.hass = f.hass;
+  document.body.append(card);
+  card.shadowRoot.querySelector(".room").click();
+  await tick();
+  [...card.shadowRoot.querySelectorAll(".tab")]
+    .find((x) => x.textContent === "Programmazione")
+    .click();
+  await tick();
+  const inner = card.shadowRoot.querySelector("kdomo-schedule-card").shadowRoot;
+  assert.equal(button(inner, "Salva settimana").disabled, true);
+  assert.equal(button(inner, "Dividi fascia").disabled, true);
+  assert.equal(f.calls.filter((x) => x.service === "get_schedule").length, 1);
+  assert.equal(f.calls.filter((x) => x.service === "set_schedule").length, 0);
+  card.remove();
   f.dispose();
 });

@@ -2,7 +2,7 @@
 
 Integrazione indipendente per controllare i termostati Giacomini K-Domo attraverso il cloud. Espone dispositivi, entità clima, temperatura, umidità e stato della connessione in Home Assistant.
 
-Versione 0.4.0 alpha. I controlli partono disabilitati e si attivano dalle opzioni. Le pianificazioni vengono modificate soltanto tramite le nuove azioni dedicate e con l’opzione specifica abilitata.
+Versione 0.4.1 alpha. I controlli partono disabilitati e si attivano dalle opzioni. Le pianificazioni vengono modificate soltanto tramite le azioni dedicate e con l’opzione specifica abilitata.
 
 Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approvato da Giacomini.
 
@@ -15,6 +15,7 @@ Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approva
 - Ritorno al programma automatico corrente.
 - Dieci temperature predefinite modificabili con entità number: sei per riscaldamento e quattro per raffrescamento.
 - Lettura e modifica della settimana del programma corrente, con editor visuale incluso.
+- Scheda compatta con pannello per stato, temperature e consultazione della settimana.
 - Bozze, riepilogo delle modifiche e controllo delle revisioni prima del salvataggio.
 - Lettura di conferma dopo i comandi.
 - Polling condiviso, gestione degli errori e riautenticazione.
@@ -135,12 +136,25 @@ Sostituire la cartella custom_components/kdomo con quella di 0.4.0 e riavviare H
 
 ### Editor visuale della settimana
 
+La scheda **K-Domo · Termostati** apre un pannello con tre sezioni: Ora, Temperature e Programmazione. In Ora si può aprire il controllo nativo del clima; in Temperature ogni valore disponibile apre il controllo nativo della relativa entità. La programmazione in questo pannello è in sola lettura, anche se le scritture della pianificazione sono abilitate. I controlli nativi rispettano i permessi e le opzioni dell'integrazione. Se il registro entità non è accessibile all'utente, il pannello segnala che le temperature non sono disponibili.
+
+Esempio di scheda compatta con termostati selezionati:
+
+```yaml
+type: custom:kdomo-thermostats-card
+entities:
+  - climate.studio
+  - climate.padronale
+```
+
+Omettere `entities` per mostrare i termostati K-Domo rilevati. La scheda usa lo stesso modulo JavaScript della scheda settimanale. Dopo l'aggiornamento ricaricare il browser; se è registrata una risorsa con `?v=0.4.0`, aggiornarla a `?v=0.4.1` per evitare cache obsolete. I controlli della 0.4.1 richiedono un collaudo sulla propria istanza.
+
 La scheda è inclusa nel componente e viene servita da Home Assistant. Non richiede un sito esterno, un account aggiuntivo, una modifica al codice Core o una seconda copia del JavaScript in www.
 
-Dopo l’aggiornamento alla 0.4.0:
+Dopo l’installazione o l’aggiornamento alla 0.4.1:
 
 1. Aprire Impostazioni → Dashboard → menu → Risorse, con la modalità avanzata del profilo se necessaria.
-2. Aggiungere /kdomo/kdomo-schedule-card.js?v=0.4.0 come modulo JavaScript. Se le risorse della propria istanza sono gestite in YAML, aggiungere lì la stessa risorsa senza cambiare modalità.
+2. Aggiungere /kdomo/kdomo-schedule-card.js?v=0.4.1 come modulo JavaScript. Se le risorse della propria istanza sono gestite in YAML, aggiungere lì la stessa risorsa senza cambiare modalità.
 3. Ricaricare il browser e aggiungere alla dashboard la scheda “K-Domo · Programmazione”. Selezionare il termostato nell’editor della scheda.
 
 Configurazione equivalente:

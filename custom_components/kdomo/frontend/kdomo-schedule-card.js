@@ -786,3 +786,385 @@ if (!window.customCards.some((c) => c.type === "kdomo-schedule-card"))
     description: "Editor della settimana del programma corrente",
     preview: false,
   });
+
+const PRESET_LABELS = [
+  [
+    "Riscaldamento",
+    [
+      ["heatingtempcomfort", "Comfort"],
+      ["heatingtempcomfortplus", "Comfort+"],
+      ["heatingtempnight", "Notte"],
+      ["heatingtempeconomy", "Economy"],
+      ["tempeconomyplus", "Economy+"],
+      ["tempantifreeze", "Antigelo"],
+    ],
+  ],
+  [
+    "Raffrescamento",
+    [
+      ["coolingtempcomfort", "Comfort"],
+      ["coolingtempcomfortplus", "Comfort+"],
+      ["coolingtempnight", "Notte"],
+      ["coolingtempeconomy", "Economy"],
+    ],
+  ],
+];
+
+/** Compact entry point; the native controls remain the authority for writes. */
+export class KdomoThermostatsCard extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._tab = "ora";
+    this._registry = null;
+  }
+  setConfig(config) {
+    if (
+      config.entities &&
+      (!Array.isArray(config.entities) ||
+        config.entities.some(
+          (x) => typeof x !== "string" || !x.startsWith("climate."),
+        ))
+    )
+      throw new Error("Le entità devono essere termostati climate.");
+    this._config = { ...config };
+    this._renderList();
+  }
+  set hass(value) {
+    this._hass = value;
+    this._renderList();
+    if (this._schedule) this._schedule.hass = this._readOnlyHass(value);
+    if (this._dialog && this._tab !== "programmazione") this._renderPanel();
+  }
+  getCardSize() {
+    return 4;
+  }
+  static getStubConfig(hass) {
+    return {
+      entities: Object.keys(hass.states).filter(
+        (id) =>
+          id.startsWith("climate.") &&
+          "kdomo_program" in hass.states[id].attributes,
+      ),
+    };
+  }
+  _element(tag, text, className) {
+    const el = document.createElement(tag);
+    if (text !== undefined) el.textContent = text;
+    if (className) el.className = className;
+    return el;
+  }
+  _button(text, action, className) {
+    const el = this._element("button", text, className);
+    el.type = "button";
+    el.addEventListener("click", action);
+    return el;
+  }
+  _ids() {
+    if (!this._hass) return [];
+    return (
+      this._config?.entities ||
+      Object.keys(this._hass.states).filter(
+        (id) =>
+          id.startsWith("climate.") &&
+          "kdomo_program" in this._hass.states[id].attributes,
+      )
+    );
+  }
+  _renderList() {
+    if (!this._config || !this._hass) return;
+    let card = this.shadowRoot.querySelector("ha-card");
+    if (!card) {
+      const style = this._element(
+        "style",
+        `
+        :host{display:block;color:var(--primary-text-color);font-family:var(--paper-font-body1_-_font-family,system-ui,sans-serif)}
+        *{box-sizing:border-box}ha-card{display:block;background:var(--ha-card-background,var(--card-background-color));border:1px solid var(--divider-color);border-radius:var(--ha-card-border-radius,12px);padding:18px}
+        h2{font-size:20px;font-weight:500;margin:0 0 12px}.room,.preset{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:left;gap:12px;border:0;border-top:1px solid var(--divider-color);background:transparent;color:inherit;padding:14px 4px;font:inherit;cursor:pointer}.room small,.sub{display:block;color:var(--secondary-text-color);font-size:13px;margin-top:4px}.value{white-space:nowrap;text-align:right}.empty{color:var(--secondary-text-color)}
+        dialog{width:min(700px,calc(100vw - 24px));max-height:calc(100dvh - 24px);border:1px solid var(--divider-color);border-radius:16px;padding:0;background:var(--card-background-color);color:var(--primary-text-color);box-shadow:0 12px 40px #0006}dialog::backdrop{background:#0009}.dialog-head{position:sticky;top:0;z-index:3;background:var(--card-background-color);padding:16px 18px 0}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.top h2{margin:0}.close{font-size:24px;border:0;background:transparent;color:inherit;min-width:44px;min-height:44px;cursor:pointer}.tabs{display:flex;overflow:auto;border-bottom:1px solid var(--divider-color);margin-top:8px}.tab{flex:1;min-width:max-content;border:0;background:transparent;color:var(--secondary-text-color);padding:14px 10px;font:inherit;cursor:pointer}.tab[aria-selected="true"]{color:var(--primary-color);border-bottom:2px solid var(--primary-color)}.panel{padding:18px}.reading{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--divider-color)}.native{margin-top:18px;border:1px solid var(--divider-color);border-radius:8px;padding:12px;color:inherit;background:transparent;font:inherit;cursor:pointer}.group-title{font-size:15px;margin:22px 0 4px}.preset span:last-child{white-space:nowrap}.panel kdomo-schedule-card{display:block}.error{color:var(--error-color)}@media(max-width:450px){.panel{padding:12px}.dialog-head{padding:12px 12px 0}}
+      `,
+      );
+      card = this._element("ha-card");
+      this.shadowRoot.append(style, card);
+    }
+    card.replaceChildren(
+      this._element("h2", this._config.title || "Termostati"),
+    );
+    const ids = this._ids();
+    if (!ids.length)
+      card.append(
+        this._element("p", "Nessun termostato K-Domo disponibile.", "empty"),
+      );
+    for (const id of ids) {
+      const state = this._hass.states[id];
+      const name = state?.attributes?.friendly_name || id;
+      const row = this._button("", () => this._open(id), "room");
+      row.setAttribute("aria-label", `Apri ${name}`);
+      const left = this._element("span", name);
+      left.append(
+        this._element(
+          "small",
+          state?.state === "unavailable" || !state
+            ? "Non disponibile"
+            : state.state === "off"
+              ? "Spento"
+              : state.state === "auto"
+                ? "Automatico"
+                : state.state,
+        ),
+      );
+      const unit =
+        state?.attributes?.temperature_unit ||
+        this._hass.config?.unit_system?.temperature ||
+        "°C";
+      const current = state?.attributes?.current_temperature;
+      row.append(
+        left,
+        this._element(
+          "span",
+          current == null ? "—" : `${current} ${unit}`,
+          "value",
+        ),
+      );
+      card.append(row);
+    }
+  }
+  async _open(id) {
+    if (this._dialog) return;
+    this._id = id;
+    this._tab = "ora";
+    this._registry = null;
+    const dialog = this._element("dialog");
+    dialog.setAttribute(
+      "aria-label",
+      `Dettagli ${this._hass.states[id]?.attributes?.friendly_name || id}`,
+    );
+    dialog.addEventListener("close", () => {
+      dialog.remove();
+      this._dialog = null;
+      this._schedule = null;
+    });
+    dialog.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      dialog.close();
+    });
+    this.shadowRoot.append(dialog);
+    this._dialog = dialog;
+    this._renderDialog();
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+    try {
+      const registry = await this._hass.callWS({
+        type: "config/entity_registry/list",
+      });
+      if (this._dialog === dialog && this._id === id) {
+        this._registry = registry;
+        if (this._tab === "temperature") this._renderPanel();
+      }
+    } catch (_) {
+      if (this._dialog === dialog) {
+        this._registry = false;
+        if (this._tab === "temperature") this._renderPanel();
+      }
+    }
+  }
+  _close() {
+    if (typeof this._dialog.close === "function") this._dialog.close();
+    else {
+      this._dialog.remove();
+      this._dialog = null;
+      this._schedule = null;
+    }
+  }
+  _renderDialog() {
+    const state = this._hass.states[this._id];
+    const head = this._element("div", undefined, "dialog-head");
+    const top = this._element("div", undefined, "top");
+    const close = this._button("×", () => this._close(), "close");
+    close.setAttribute("aria-label", "Chiudi dettagli");
+    top.append(
+      this._element("h2", state?.attributes?.friendly_name || this._id),
+      close,
+    );
+    const tabs = this._element("div", undefined, "tabs");
+    tabs.setAttribute("role", "tablist");
+    for (const [id, label] of [
+      ["ora", "Ora"],
+      ["temperature", "Temperature"],
+      ["programmazione", "Programmazione"],
+    ]) {
+      const button = this._button(
+        label,
+        () => {
+          if (id === this._tab) return;
+          this._tab = id;
+          this._renderDialog();
+        },
+        "tab",
+      );
+      button.setAttribute("role", "tab");
+      button.setAttribute("aria-selected", String(id === this._tab));
+      tabs.append(button);
+    }
+    head.append(top, tabs);
+    this._panel = this._element("div", undefined, "panel");
+    this._panel.setAttribute("role", "tabpanel");
+    this._dialog.replaceChildren(head, this._panel);
+    this._schedule = null;
+    this._renderPanel();
+  }
+  _moreInfo(id) {
+    this.dispatchEvent(
+      new CustomEvent("hass-more-info", {
+        detail: { entityId: id },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+  _readOnlyHass(hass) {
+    const state = hass.states[this._id];
+    if (!state) return hass;
+    return {
+      ...hass,
+      states: {
+        ...hass.states,
+        [this._id]: {
+          ...state,
+          attributes: {
+            ...state.attributes,
+            kdomo_schedule_write_enabled: false,
+          },
+        },
+      },
+    };
+  }
+  _renderPanel() {
+    if (!this._panel) return;
+    const state = this._hass.states[this._id];
+    this._panel.replaceChildren();
+    if (!state || ["unavailable", "unknown"].includes(state.state)) {
+      this._panel.append(
+        this._element("p", "Termostato non disponibile.", "error"),
+      );
+      return;
+    }
+    if (this._tab === "ora") {
+      const unit =
+        state.attributes.temperature_unit ||
+        this._hass.config?.unit_system?.temperature ||
+        "°C";
+      for (const [name, value] of [
+        [
+          "Temperatura attuale",
+          state.attributes.current_temperature == null
+            ? "—"
+            : `${state.attributes.current_temperature} ${unit}`,
+        ],
+        [
+          "Temperatura impostata",
+          state.attributes.temperature == null
+            ? "—"
+            : `${state.attributes.temperature} ${unit}`,
+        ],
+        [
+          "Umidità",
+          state.attributes.current_humidity == null
+            ? "—"
+            : `${state.attributes.current_humidity} %`,
+        ],
+        [
+          "Modalità",
+          state.state === "off"
+            ? "Spento"
+            : state.state === "auto"
+              ? "Automatico"
+              : state.state,
+        ],
+      ]) {
+        const row = this._element("div", undefined, "reading");
+        row.append(this._element("span", name), this._element("strong", value));
+        this._panel.append(row);
+      }
+      this._panel.append(
+        this._button(
+          "Apri controlli del termostato",
+          () => this._moreInfo(this._id),
+          "native",
+        ),
+      );
+    } else if (this._tab === "temperature") {
+      if (!this._registry) {
+        this._panel.append(
+          this._element(
+            "p",
+            this._registry === false
+              ? "Impossibile caricare le temperature. Apri il dispositivo in Home Assistant."
+              : "Caricamento temperature…",
+            "empty",
+          ),
+        );
+        return;
+      }
+      const climate = this._registry.find(
+        (x) => x.entity_id === this._id && x.platform === "kdomo",
+      );
+      if (!climate?.device_id) {
+        this._panel.append(
+          this._element("p", "Dispositivo K-Domo non trovato.", "error"),
+        );
+        return;
+      }
+      for (const [group, values] of PRESET_LABELS) {
+        this._panel.append(this._element("h3", group, "group-title"));
+        for (const [key, label] of values) {
+          const entity = this._registry.find(
+            (x) =>
+              x.platform === "kdomo" &&
+              x.device_id === climate.device_id &&
+              x.unique_id?.endsWith(`:${key}`),
+          );
+          const number = entity && this._hass.states[entity.entity_id];
+          const value =
+            !number || ["unknown", "unavailable"].includes(number.state)
+              ? "Non disponibile"
+              : `${number.state} ${number.attributes.unit_of_measurement || ""}`;
+          const row = this._button(
+            "",
+            () => this._moreInfo(entity.entity_id),
+            "preset",
+          );
+          row.disabled =
+            !number || ["unknown", "unavailable"].includes(number.state);
+          row.append(
+            this._element("span", label),
+            this._element("span", value),
+          );
+          this._panel.append(row);
+        }
+      }
+      this._panel.append(
+        this._element(
+          "p",
+          "Tocca una temperatura per aprire il controllo di Home Assistant.",
+          "sub",
+        ),
+      );
+    } else {
+      const card = document.createElement("kdomo-schedule-card");
+      card.setConfig({ entity: this._id });
+      card.hass = this._readOnlyHass(this._hass);
+      this._schedule = card;
+      this._panel.append(card);
+    }
+  }
+}
+if (!customElements.get("kdomo-thermostats-card"))
+  customElements.define("kdomo-thermostats-card", KdomoThermostatsCard);
+if (!window.customCards.some((c) => c.type === "kdomo-thermostats-card"))
+  window.customCards.push({
+    type: "kdomo-thermostats-card",
+    name: "K-Domo · Termostati",
+    description: "Termostati compatti con temperature e programmazione",
+    preview: false,
+  });

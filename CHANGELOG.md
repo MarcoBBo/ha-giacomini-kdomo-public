@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1 — 2026-10-31
+
+Aggiunge una scheda compatta dei termostati con un pannello dedicato: stato corrente, temperature predefinite e programmazione settimanale. Le temperature aprono i controlli nativi di Home Assistant; in questo pannello la programmazione è sempre in sola lettura. La scheda della 0.4.0 resta disponibile separatamente con le proprie opzioni.
+
 ## 0.4.0 — 2026-10-31
 
 Lettura e modifica della settimana del programma corrente. Editor visuale incluso nel componente: sette giorni, confini trascinabili, orari numerici, livelli termici, divisione/unione, copia dei giorni, bozza e riepilogo prima/dopo. Registrazione della risorsa e aggiunta della scheda alla dashboard documentate.

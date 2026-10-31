@@ -1,7 +1,7 @@
 """Constants for the independent K-Domo cloud integration."""
 
 DOMAIN = "kdomo"
-VERSION = "0.4.0"
+VERSION = "0.4.1"
 BASE_URL = "https://giacomini.kblue.cloud/"
 CONF_PLANT_ID = "plant_id"
 CONF_PLANT_NAME = "plant_name"
