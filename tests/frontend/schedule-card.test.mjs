@@ -397,6 +397,34 @@ test("compact thermostat panel shows only the selected device's temperatures and
   f.dispose();
 });
 
+test("compact list displays humidity and distinct modes, including unavailable readings", async () => {
+  const f = await fixture();
+  const card = new KdomoThermostatsCard();
+  const state = f.hass.states["climate.studio"];
+  state.attributes.current_temperature = 20.5;
+  state.attributes.current_humidity = 0;
+  card.setConfig({ entities: ["climate.studio"] });
+  for (const [mode, css, label] of [
+    ["auto", "auto", "Automatico"],
+    ["off", "off", "Spento"],
+    ["heat", "on", "Acceso · Riscaldamento"],
+    ["unavailable", "unavailable", "Non disponibile"],
+  ]) {
+    state.state = mode;
+    card.hass = f.hass;
+    const row = card.shadowRoot.querySelector(".room");
+    assert.ok(row.querySelector(`.status-icon.${css}`));
+    assert.match(row.textContent, new RegExp(label));
+    assert.match(row.textContent, /Umidità 0 %/);
+    assert.match(row.getAttribute("aria-label"), /umidità 0 per cento/);
+  }
+  delete state.attributes.current_humidity;
+  card.hass = f.hass;
+  assert.match(card.shadowRoot.querySelector(".room").textContent, /Umidità —/);
+  card.remove();
+  f.dispose();
+});
+
 test("compact panel never permits schedule writes even when integration writes are enabled", async () => {
   const f = await fixture({ enabled: true });
   f.calls.length = 0;

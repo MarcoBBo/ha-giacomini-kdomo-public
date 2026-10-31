@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2 — 2026-10-31
+
+La scheda compatta mostra umidità e icone colorate per le modalità spento, acceso e automatico.
+
 ## 0.4.1 — 2026-10-31
 
 Aggiunge una scheda compatta dei termostati con un pannello dedicato: stato corrente, temperature predefinite e programmazione settimanale. Le temperature aprono i controlli nativi di Home Assistant; in questo pannello la programmazione è sempre in sola lettura. La scheda della 0.4.0 resta disponibile separatamente con le proprie opzioni.

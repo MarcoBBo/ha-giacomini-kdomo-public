@@ -880,7 +880,7 @@ export class KdomoThermostatsCard extends HTMLElement {
         `
         :host{display:block;color:var(--primary-text-color);font-family:var(--paper-font-body1_-_font-family,system-ui,sans-serif)}
         *{box-sizing:border-box}ha-card{display:block;background:var(--ha-card-background,var(--card-background-color));border:1px solid var(--divider-color);border-radius:var(--ha-card-border-radius,12px);padding:18px}
-        h2{font-size:20px;font-weight:500;margin:0 0 12px}.room,.preset{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:left;gap:12px;border:0;border-top:1px solid var(--divider-color);background:transparent;color:inherit;padding:14px 4px;font:inherit;cursor:pointer}.room small,.sub{display:block;color:var(--secondary-text-color);font-size:13px;margin-top:4px}.value{white-space:nowrap;text-align:right}.empty{color:var(--secondary-text-color)}
+        h2{font-size:20px;font-weight:500;margin:0 0 12px}.room,.preset{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:left;gap:12px;border:0;border-top:1px solid var(--divider-color);background:transparent;color:inherit;padding:14px 4px;font:inherit;cursor:pointer}.room small,.sub{display:block;color:var(--secondary-text-color);font-size:13px;margin-top:4px}.room-info{display:flex;align-items:center;gap:12px;min-width:0}.status-icon{flex:none;--mdc-icon-size:24px;color:var(--secondary-text-color)}.status-icon.auto{color:var(--success-color,#4caf50)}.status-icon.on{color:var(--warning-color,#ff9800)}.value{white-space:nowrap;text-align:right}.empty{color:var(--secondary-text-color)}
         dialog{width:min(700px,calc(100vw - 24px));max-height:calc(100dvh - 24px);border:1px solid var(--divider-color);border-radius:16px;padding:0;background:var(--card-background-color);color:var(--primary-text-color);box-shadow:0 12px 40px #0006}dialog::backdrop{background:#0009}.dialog-head{position:sticky;top:0;z-index:3;background:var(--card-background-color);padding:16px 18px 0}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.top h2{margin:0}.close{font-size:24px;border:0;background:transparent;color:inherit;min-width:44px;min-height:44px;cursor:pointer}.tabs{display:flex;overflow:auto;border-bottom:1px solid var(--divider-color);margin-top:8px}.tab{flex:1;min-width:max-content;border:0;background:transparent;color:var(--secondary-text-color);padding:14px 10px;font:inherit;cursor:pointer}.tab[aria-selected="true"]{color:var(--primary-color);border-bottom:2px solid var(--primary-color)}.panel{padding:18px}.reading{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--divider-color)}.native{margin-top:18px;border:1px solid var(--divider-color);border-radius:8px;padding:12px;color:inherit;background:transparent;font:inherit;cursor:pointer}.group-title{font-size:15px;margin:22px 0 4px}.preset span:last-child{white-space:nowrap}.panel kdomo-schedule-card{display:block}.error{color:var(--error-color)}@media(max-width:450px){.panel{padding:12px}.dialog-head{padding:12px 12px 0}}
       `,
       );
@@ -900,32 +900,58 @@ export class KdomoThermostatsCard extends HTMLElement {
       const name = state?.attributes?.friendly_name || id;
       const row = this._button("", () => this._open(id), "room");
       row.setAttribute("aria-label", `Apri ${name}`);
-      const left = this._element("span", name);
-      left.append(
-        this._element(
-          "small",
-          state?.state === "unavailable" || !state
-            ? "Non disponibile"
-            : state.state === "off"
-              ? "Spento"
-              : state.state === "auto"
-                ? "Automatico"
-                : state.state,
-        ),
+      const mode =
+        !state || ["unavailable", "unknown"].includes(state.state)
+          ? "unavailable"
+          : state.state === "off"
+            ? "off"
+            : state.state === "auto"
+              ? "auto"
+              : "on";
+      const label =
+        mode === "unavailable"
+          ? "Non disponibile"
+          : mode === "off"
+            ? "Spento"
+            : mode === "auto"
+              ? "Automatico"
+              : state.state === "heat"
+                ? "Acceso · Riscaldamento"
+                : state.state === "cool"
+                  ? "Acceso · Raffrescamento"
+                  : `Acceso · ${state.state}`;
+      const icon = this._element("ha-icon", undefined, `status-icon ${mode}`);
+      icon.setAttribute(
+        "icon",
+        mode === "auto" ? "mdi:autorenew" : "mdi:power",
       );
+      icon.setAttribute("aria-hidden", "true");
+      const left = this._element("span", name);
+      left.append(this._element("small", label));
+      const info = this._element("span", undefined, "room-info");
+      info.append(icon, left);
       const unit =
         state?.attributes?.temperature_unit ||
         this._hass.config?.unit_system?.temperature ||
         "°C";
       const current = state?.attributes?.current_temperature;
-      row.append(
-        left,
+      const humidity = state?.attributes?.current_humidity;
+      const value = this._element(
+        "span",
+        current == null ? "—" : `${current} ${unit}`,
+        "value",
+      );
+      value.append(
         this._element(
-          "span",
-          current == null ? "—" : `${current} ${unit}`,
-          "value",
+          "small",
+          humidity == null ? "Umidità —" : `Umidità ${humidity} %`,
         ),
       );
+      row.setAttribute(
+        "aria-label",
+        `Apri ${name}: ${label}, ${current == null ? "temperatura non disponibile" : `${current} ${unit}`}, ${humidity == null ? "umidità non disponibile" : `umidità ${humidity} per cento`}`,
+      );
+      row.append(info, value);
       card.append(row);
     }
   }

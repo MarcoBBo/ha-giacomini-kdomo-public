@@ -2,7 +2,7 @@
 
 Integrazione indipendente per controllare i termostati Giacomini K-Domo attraverso il cloud. Espone dispositivi, entità clima, temperatura, umidità e stato della connessione in Home Assistant.
 
-Versione 0.4.1 alpha. I controlli partono disabilitati e si attivano dalle opzioni. Le pianificazioni vengono modificate soltanto tramite le azioni dedicate e con l’opzione specifica abilitata.
+Versione 0.4.2 alpha. I controlli partono disabilitati e si attivano dalle opzioni. Le pianificazioni vengono modificate soltanto tramite le azioni dedicate e con l’opzione specifica abilitata.
 
 Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approvato da Giacomini.
 
@@ -147,14 +147,14 @@ entities:
   - climate.padronale
 ```
 
-Omettere `entities` per mostrare i termostati K-Domo rilevati. La scheda usa lo stesso modulo JavaScript della scheda settimanale. Dopo l'aggiornamento ricaricare il browser; se è registrata una risorsa con `?v=0.4.0`, aggiornarla a `?v=0.4.1` per evitare cache obsolete. I controlli della 0.4.1 richiedono un collaudo sulla propria istanza.
+Omettere `entities` per mostrare i termostati K-Domo rilevati. La scheda usa lo stesso modulo JavaScript della scheda settimanale. Dopo l'aggiornamento ricaricare il browser; se è registrata una risorsa con una versione precedente, aggiornarla a `?v=0.4.2` per evitare cache obsolete. I controlli della 0.4.2 richiedono un collaudo sulla propria istanza.
 
 La scheda è inclusa nel componente e viene servita da Home Assistant. Non richiede un sito esterno, un account aggiuntivo, una modifica al codice Core o una seconda copia del JavaScript in www.
 
-Dopo l’installazione o l’aggiornamento alla 0.4.1:
+Dopo l’installazione o l’aggiornamento alla 0.4.2:
 
 1. Aprire Impostazioni → Dashboard → menu → Risorse, con la modalità avanzata del profilo se necessaria.
-2. Aggiungere /kdomo/kdomo-schedule-card.js?v=0.4.1 come modulo JavaScript. Se le risorse della propria istanza sono gestite in YAML, aggiungere lì la stessa risorsa senza cambiare modalità.
+2. Aggiungere /kdomo/kdomo-schedule-card.js?v=0.4.2 come modulo JavaScript. Se le risorse della propria istanza sono gestite in YAML, aggiungere lì la stessa risorsa senza cambiare modalità.
 3. Ricaricare il browser e aggiungere alla dashboard la scheda “K-Domo · Programmazione”. Selezionare il termostato nell’editor della scheda.
 
 Configurazione equivalente:
