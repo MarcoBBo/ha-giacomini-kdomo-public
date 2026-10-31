@@ -173,6 +173,10 @@ class KdomoClient:
             raise ProtocolError("Unsupported preset command group")
         await self._async_send_command(device, topic, payload)
 
+    async def async_send_schedule(self, device: Device, payload: dict[str, Any]) -> None:
+        """Send a complete week once; confirmation is the coordinator's responsibility."""
+        await self._async_send_command(device, "03", payload)
+
     async def _async_send_command(self, device: Device, topic: str, payload: dict[str, Any]) -> None:
         path = f"thermostats/{segment(device.plant_id)}/{segment(device.serial)}/sendCommand/{topic}"
         response = await self._request("POST", path, body=payload)

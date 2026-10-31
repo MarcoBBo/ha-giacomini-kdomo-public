@@ -15,7 +15,13 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import KdomoClient
-from .const import CONF_POLL_INTERVAL, CONF_WRITE_ENABLED, DEFAULT_POLL_INTERVAL, DOMAIN
+from .const import (
+    CONF_POLL_INTERVAL,
+    CONF_SCHEDULE_WRITE_ENABLED,
+    CONF_WRITE_ENABLED,
+    DEFAULT_POLL_INTERVAL,
+    DOMAIN,
+)
 from .models import (
     AuthenticationError,
     Device,
@@ -30,6 +36,7 @@ from .models import (
     settings_payload,
     values_match,
 )
+from .schedule import decode_week, schedule_confirmed, schedule_payload
 
 _LOGGER = logging.getLogger(__name__)
 VERIFY_DELAYS = (2, 5, 10, 10)
@@ -144,4 +151,52 @@ class KdomoCoordinator(DataUpdateCoordinator[dict[str, Snapshot]]):
                 raise HomeAssistantError("K-Domo rate limit; wait before trying again") from err
             except KdomoError as err:
                 # Only sanitized domain exceptions are presented to the user.
+                raise HomeAssistantError(str(err)) from err
+
+    @property
+    def schedule_write_enabled(self) -> bool:
+        return bool(
+            self.entry.options.get(CONF_WRITE_ENABLED, False)
+            and self.entry.options.get(CONF_SCHEDULE_WRITE_ENABLED, False)
+        )
+
+    async def async_schedule(self, device: Device, *, days: Any = None, revision: str | None = None) -> dict:
+        """Read or replace the current program's week, with optimistic concurrency control."""
+        if days is not None and not self.schedule_write_enabled:
+            raise HomeAssistantError(
+                "Schedule controls are disabled. Enable both controls and schedule editing in options."
+            )
+        async with self._io_lock:
+            try:
+                self._enforce_backoff()
+                before = await self.client.async_state(device)
+                self._publish(device, before)
+                week = decode_week(before)
+                if days is None:
+                    return week.as_dict(before, write_enabled=self.schedule_write_enabled)
+                if revision != week.revision:
+                    raise ProtocolError(
+                        "Schedule changed since it was opened. Reload the week before saving."
+                    )
+                payload, desired, changed = schedule_payload(week, days)
+                if not changed:
+                    return week.as_dict(before, write_enabled=self.schedule_write_enabled)
+                if not self.schedule_write_enabled:
+                    raise ProtocolError("Schedule controls were disabled before sending")
+                sent_at = time.time()
+                await self.client.async_send_schedule(device, payload)
+                for delay in VERIFY_DELAYS:
+                    await asyncio.sleep(delay)
+                    after = await self.client.async_state(device)
+                    self._publish(device, after)
+                    if schedule_confirmed(before, after, desired, changed, sent_at):
+                        return decode_week(after).as_dict(after, write_enabled=self.schedule_write_enabled)
+                raise VerificationError("Schedule was not confirmed. Check K-Domo before trying again.")
+            except (AuthenticationError, PrivacyError) as err:
+                self.entry.async_start_reauth(self.hass)
+                raise HomeAssistantError("K-Domo authentication failed; sign in again") from err
+            except RateLimitError as err:
+                self._set_backoff(err)
+                raise HomeAssistantError("K-Domo rate limit; wait before trying again") from err
+            except KdomoError as err:
                 raise HomeAssistantError(str(err)) from err

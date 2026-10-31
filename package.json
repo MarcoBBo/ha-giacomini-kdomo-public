@@ -1,0 +1,12 @@
+{
+  "name": "ha-giacomini-kdomo-frontend",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/frontend/*.test.mjs",
+    "format:check": "prettier --check custom_components/kdomo/frontend/*.js tests/frontend/*.mjs"
+  },
+  "engines": {"node": ">=20"},
+  "devDependencies": {"jsdom": "26.1.0", "prettier": "3.6.2"}
+}

@@ -1,11 +1,12 @@
 """Constants for the independent K-Domo cloud integration."""
 
 DOMAIN = "kdomo"
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 BASE_URL = "https://giacomini.kblue.cloud/"
 CONF_PLANT_ID = "plant_id"
 CONF_PLANT_NAME = "plant_name"
 CONF_WRITE_ENABLED = "write_enabled"
+CONF_SCHEDULE_WRITE_ENABLED = "schedule_write_enabled"
 CONF_POLL_INTERVAL = "poll_interval"
 DEFAULT_POLL_INTERVAL = 60
 MIN_POLL_INTERVAL = 60
@@ -50,3 +51,5 @@ PARAMETERS = (
     + PRESET_TEMPERATURES
     + tuple(key for _, integers in PRESET_GROUPS.values() for key in integers)
 )
+
+PARAMETERS += tuple(f"progDay{day}" for day in range(7))

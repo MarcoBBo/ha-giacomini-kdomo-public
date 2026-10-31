@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — 2026-10-31
+
+Lettura e modifica della settimana del programma corrente. Editor visuale incluso nel componente: sette giorni, confini trascinabili, orari numerici, livelli termici, divisione/unione, copia dei giorni, bozza e riepilogo prima/dopo. Registrazione della risorsa e aggiunta della scheda alla dashboard documentate.
+
+Azioni HA get_schedule e set_schedule con permessi per entità; revisione obbligatoria, conservazione dei giorni invariati, un solo invio del gruppo 03 e verifica di tutti i giorni con timestamp freschi per quelli modificati. Nessun cambio di programma, accensione, replay o rollback. Nuova opzione schedule_write_enabled disabilitata per impostazione predefinita.
+
+Test del codice Python, interfaccia DOM e percorso completo HA → HTTP cloud sintetico → conferma. Nessuna installazione domestica o prova di scrittura reale durante lo sviluppo. Il collaudo del gruppo 03 e la semantica del minuto finale restano da verificare sul dispositivo. Non è inclusa una piattaforma calendar.
+
 ## 0.3.0 — 2026-10-30
 
 Aggiunge dieci entità number per tutte le temperature predefinite documentate: Comfort, Comfort+, Notte, Economy, Economy+ e Antigelo per riscaldamento; Comfort, Comfort+, Notte ed Economy per raffrescamento.

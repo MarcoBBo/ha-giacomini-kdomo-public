@@ -7,6 +7,8 @@ from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.exceptions import HomeAssistantError
 
 from .entity import KdomoEntity
+from .models import ProtocolError
+from .schedule import decode_week
 
 PARALLEL_UPDATES = 1
 
@@ -75,7 +77,14 @@ class KdomoClimate(KdomoEntity, ClimateEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
+        try:
+            week = decode_week(self.snapshot)
+        except ProtocolError:
+            week = None
         return {
+            "kdomo_schedule_revision": week.revision if week else None,
+            "kdomo_program_name": week.name if week else None,
+            "kdomo_schedule_write_enabled": self.coordinator.schedule_write_enabled,
             "kdomo_mode": self.snapshot.integer("mode"),
             "kdomo_status": self.snapshot.integer("status"),
             "kdomo_program": self.snapshot.integer("program"),

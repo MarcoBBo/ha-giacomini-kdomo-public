@@ -2,7 +2,7 @@
 
 Integrazione indipendente per controllare i termostati Giacomini K-Domo attraverso il cloud. Espone dispositivi, entità clima, temperatura, umidità e stato della connessione in Home Assistant.
 
-Versione 0.3.0 alpha. I controlli partono disabilitati e si attivano dalle opzioni. L’integrazione conserva le pianificazioni già impostate in K-Domo.
+Versione 0.4.0 alpha. I controlli partono disabilitati e si attivano dalle opzioni. Le pianificazioni vengono modificate soltanto tramite le nuove azioni dedicate e con l’opzione specifica abilitata.
 
 Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approvato da Giacomini.
 
@@ -14,11 +14,13 @@ Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approva
 - Setpoint in manuale temporaneo, accensione e spegnimento.
 - Ritorno al programma automatico corrente.
 - Dieci temperature predefinite modificabili con entità number: sei per riscaldamento e quattro per raffrescamento.
+- Lettura e modifica della settimana del programma corrente, con editor visuale incluso.
+- Bozze, riepilogo delle modifiche e controllo delle revisioni prima del salvataggio.
 - Lettura di conferma dopo i comandi.
 - Polling condiviso, gestione degli errori e riautenticazione.
 - Traduzioni italiane e inglesi.
 
-Non sono esposti comandi per manuale permanente, modifica delle fasce orarie, selezione di un preset attivo, fan-coil, cambio di programma/stagione o geofence.
+Non sono esposti comandi per manuale permanente, selezione di un preset attivo, fan-coil, cambio di programma/stagione o geofence.
 
 ## Compatibilità
 
@@ -125,9 +127,55 @@ La modifica usa i gruppi cloud 10/11: lettura preventiva dell'intero gruppo, con
 
 Le nuove scritture sono coperte da test su cloud simulato; il collaudo fisico dei gruppi 10/11 resta da eseguire. Il problema già osservato nella conferma del setpoint climate con termostato spento/in automatico non viene risolto da questa versione.
 
-### Aggiornamento da 0.1.0
+### Aggiornamento da 0.1.0 o 0.3.0
 
-Sostituire la cartella custom_components/kdomo con quella di 0.3.0 e riavviare HA. Non rimuovere e ricreare la configurazione: le entità esistenti e le opzioni vengono mantenute. Se i controlli erano già abilitati, restano abilitati anche per le nuove temperature. L'aggiornamento non invia comandi.
+Sostituire la cartella custom_components/kdomo con quella di 0.4.0 e riavviare HA. Non rimuovere e ricreare la configurazione: le entità esistenti e le opzioni vengono mantenute. Se i controlli erano già abilitati, restano abilitati anche per le nuove temperature. L'aggiornamento non invia comandi.
+
+### Editor visuale della settimana
+
+La scheda è inclusa nel componente e viene servita da Home Assistant. Non richiede un sito esterno, un account aggiuntivo, una modifica al codice Core o una seconda copia del JavaScript in www.
+
+Dopo l’aggiornamento alla 0.4.0:
+
+1. Aprire Impostazioni → Dashboard → menu → Risorse, con la modalità avanzata del profilo se necessaria.
+2. Aggiungere /kdomo/kdomo-schedule-card.js?v=0.4.0 come modulo JavaScript. Se le risorse della propria istanza sono gestite in YAML, aggiungere lì la stessa risorsa senza cambiare modalità.
+3. Ricaricare il browser e aggiungere alla dashboard la scheda “K-Domo · Programmazione”. Selezionare il termostato nell’editor della scheda.
+
+Configurazione equivalente:
+
+```yaml
+type: custom:kdomo-schedule-card
+entity: climate.studio
+```
+
+La scheda mostra i sette giorni e le fasce del programma corrente. Selezionare una fascia per cambiarne livello o orario finale; sul desktop si può trascinare il confine destro della fascia selezionata. Il controllo sottostante e l’orario numerico sono disponibili anche da telefono e tastiera. Il selettore “Seleziona fascia” permette di raggiungere anche gli intervalli troppo brevi per un tocco preciso sulla settimana. La temperatura dei livelli usa le unità preferite in HA.
+
+Sono disponibili divisione e unione delle fasce, fino a otto per giorno, e copia della giornata sui feriali, sul fine settimana o sull’intera settimana. Le modifiche restano nella bozza del browser finché non vengono salvate; ricaricare o chiudere la pagina può perderle. “Ricarica” richiede di scartare esplicitamente una bozza modificata.
+
+Per inviare un programma occorre abilitare sia i controlli generali sia “Abilita modifica pianificazioni (sperimentale)” nelle opzioni K-Domo. Quest’ultima parte disabilitata anche se i vecchi controlli erano già attivi. Setup, installazione della risorsa e letture non scrivono all’impianto.
+
+“Salva settimana” mostra i giorni modificati con un riepilogo prima/dopo; “Conferma invio” esegue una sola scrittura cloud e ne verifica la rilettura. Se app o termostato hanno cambiato programma o pianificazione mentre si lavorava, l’azione viene rifiutata: ricaricare prima di riprovare. Questo controllo non rende atomica la modifica rispetto a un altro client che scriva esattamente tra lettura e invio.
+
+Si modifica solo la settimana del programma corrente e non se ne cambia la selezione. Nome, tipo, giorni invariati e relativi campi wire vengono conservati. Una settimana incompleta o composta da giorni di programmi diversi viene rifiutata senza sostituirla con un esempio. Gli orari sono quelli locali del termostato; fine giornata è rappresentata come 24:00 nella scheda e come 23:59 nel protocollo. La semantica esatta del minuto finale richiede collaudo sul firmware.
+
+Non viene creato un secondo pianificatore HA: dopo il salvataggio K-Domo esegue i suoi orari anche se HA è spento. La 0.4.0 fornisce la scheda dedicata e le azioni sotto indicate; non crea un’entità calendar, non seleziona programmi inattivi e non presume di poter leggere tutte le loro settimane.
+
+La scrittura del gruppo 03 è verificata con un cloud sintetico e non ancora collaudata fisicamente sul termostato. Prima di usarla su una settimana reale, eseguire un collaudo controllato e autorizzato su un solo dispositivo e conservare la pianificazione iniziale.
+
+### Azioni per script e automazioni
+
+kdomo.get_schedule riceve entity_id di un singolo climate K-Domo e restituisce il programma corrente, days, levels, scale, write_enabled e revision. L’azione richiede una risposta, per esempio con response_variable:
+
+```yaml
+action: kdomo.get_schedule
+data:
+  entity_id: climate.studio
+response_variable: programma_studio
+```
+
+kdomo.set_schedule riceve entity_id, revision restituita dalla lettura e l’intera lista days. Ogni giorno ha day (0=domenica…6=sabato) e slots; ogni slot ha level (id dalla risposta levels) ed end in minuti da mezzanotte. Gli orari devono crescere, senza buchi, terminare a 1440 e avere da una a otto fasce per giorno. Il minuto 1439 è riservato alla rappresentazione wire del confine finale: usare 1440.
+
+La revisione comprende metadati, sette giorni e temperature/scala dei livelli per rilevare una bozza non più attuale. L’azione richiede una settimana completa; non inviare solo i giorni modificati. Non registrare password o token in YAML o nella scheda. Il backend verifica i permessi HA di lettura/controllo della singola entità. Non è necessario passare identificativi cloud o credenziali al browser.
 
 ## Limiti
 
@@ -174,4 +222,4 @@ Usare le [issue del repository](https://github.com/MarcoBBo/ha-giacomini-kdomo/i
 
 Per sviluppo, test e build consultare CONTRIBUTING.md. Il progetto è distribuito con [licenza MIT](LICENSE); i nomi e i marchi di terzi restano dei rispettivi titolari, come indicato in [NOTICE.md](NOTICE.md).
 
-English: independent Giacomini K-Domo cloud integration for Home Assistant. UI setup, plant selection, climate and environmental entities, temporary manual targets, native schedule resume and ten configurable temperature levels. Controls are disabled by default. Fixed manual mode and schedule editing are not exposed.
+English: independent Giacomini K-Domo cloud integration for Home Assistant. UI setup, plant selection, climate and environmental entities, temporary manual targets, native schedule resume and ten configurable temperature levels. Controls are disabled by default. Fixed manual mode and inactive-program selection are not exposed. Current-program weekly editing is available through a bundled custom card; schedule writes require a separate opt-in and physical validation.

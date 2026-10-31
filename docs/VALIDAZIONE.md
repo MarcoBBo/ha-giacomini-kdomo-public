@@ -1,5 +1,19 @@
 # Validazione
 
+## Release 0.4.0 — 31 ottobre 2026
+
+158 test Python passati su HA 2026.10.4 / Python 3.14.8 (copertura 93,94%) e HA 2026.2.3 / Python 3.13.16 (94,40%). Quattordici test frontend DOM passati con Node.js e jsdom 26.1.0. Ruff lint/formato, Prettier e Hassfest locale superati: 1 integrazione, 0 non valide, nessun warning finale. Hassfest usa lo stesso adattamento del pool a due thread già descritto sotto.
+
+La suite Python verifica codec riscaldamento/raffrescamento, sette giorni completi, otto fasce massime, ordine domenica–sabato, padding conservato sui giorni invariati, rifiuto di programmi misti o dati incompleti, revisione obsoleta, conferma logica e timestamp dei giorni modificati. Verifica permessi HA per lettura e scrittura, ConfigEntry scaricata, abilitazione separata e revoca dei controlli durante la lettura, backoff, reauth e assenza di replay/rollback.
+
+Il percorso completo usa vere azioni HA, client aiohttp e cloud sintetico per inviare il gruppo 03 e verificarne la rilettura, conservando gli altri giorni, modalità, programma, setpoint e stato acceso/spento. Un test HTTP HA verifica che il modulo JavaScript incluso sia effettivamente servito al percorso documentato.
+
+I test frontend montano il vero custom element in jsdom e verificano modifica delle bozze senza invio, split/merge, copia dei giorni, riepilogo, salvataggio confermato, conflitti esterni, errore incerto senza reinvio, controllo tramite range senza ricreare il campo durante il movimento, trascinamento pointer, selettore accessibile, cambio delle opzioni, offline, conversione Fahrenheit e inserimento sicuro dei testi. jsdom non misura il layout reale: la resa responsiva, il tema e il tocco sui dispositivi reali restano da controllare in HA.
+
+Nessuna installazione domestica, richiesta all’account reale o scrittura di pianificazioni durante lo sviluppo. Il gruppo 03, il minuto finale 23:59 e i comportamenti firmware restano da collaudare fisicamente con istruzione esplicita. Non vengono creati calendari nativi né lette settimane di programmi inattivi. Il precedente problema climate spento/automatico resta fuori da questa modifica.
+
+La CI della 0.4.0 include i due ambienti Python e un job Node 22 per test frontend e formato. Il suo esito remoto va verificato separatamente sul commit pubblicato; questi risultati documentano l’esecuzione locale.
+
 ## Release 0.3.0 — 30 ottobre 2026
 
 124 test passati su HA 2026.10.4 / Python 3.14.8, copertura 92,84%. Gli stessi 124 test passano su HA 2026.2.3 / Python 3.13.16, copertura 93,13%. Ruff lint e formato superati. Hassfest locale sul sorgente ufficiale HA 2026.10.4: 1 integrazione, 0 non valide, con la stessa sostituzione del pool processi descritta nel resoconto storico.

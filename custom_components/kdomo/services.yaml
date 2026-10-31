@@ -1,0 +1,24 @@
+get_schedule:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: kdomo
+          domain: climate
+set_schedule:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: kdomo
+          domain: climate
+    revision:
+      required: true
+      selector:
+        text:
+    days:
+      required: true
+      selector:
+        object:

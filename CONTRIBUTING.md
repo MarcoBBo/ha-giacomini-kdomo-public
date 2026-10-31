@@ -20,6 +20,18 @@ I test HTTP puntano a un server aiohttp su loopback. Gli altri test sostituiscon
 
 `test_end_to_end.py` attraversa config flow, setup, opzioni, client HTTP, comando e conferma, poi verifica l’unload. Non simula Home Assistant con classi locali inventate.
 
+## Test dell’interfaccia
+
+Il frontend non richiede librerie esterne a runtime. Per i test usare Node.js 20 o successivo:
+
+```sh
+npm ci
+npm test
+npm run format:check
+```
+
+jsdom e Prettier sono sole dipendenze di sviluppo, fissate in package-lock.json. I test montano il vero custom element, simulano solo l’API HA e verificano bozze, selezione, split/merge, copia, salvataggio, conflitti, errori, permessi UI, conversione e trattamento sicuro del testo ricevuto. Nessuna richiesta a un account reale. Il trascinamento e la resa su dispositivi reali richiedono anche verifica visuale nel frontend HA.
+
 ## Modifiche al protocollo
 
 Separare sempre evidenza statica, risposta cloud, conferma fisica e test sintetici. Non descrivere un comando come supportato solo perché ritorna HTTP 200. Aggiungere un caso di errore e un criterio di verifica per ogni nuova scrittura.

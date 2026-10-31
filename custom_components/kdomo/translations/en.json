@@ -43,7 +43,8 @@
         "description": "Enable controls only when ready to use them. Commands preserve schedules. Temporary manual mode may end at a native schedule transition. A target change by itself preserves the current on/off status.",
         "data": {
           "write_enabled": "Enable thermostat controls",
-          "poll_interval": "Polling interval (60–600 seconds)"
+          "poll_interval": "Polling interval (60–600 seconds)",
+          "schedule_write_enabled": "Enable schedule editing (experimental)"
         }
       }
     }
@@ -92,6 +93,36 @@
       },
       "coolingtempeconomy": {
         "name": "Cooling Economy"
+      }
+    }
+  },
+  "services": {
+    "get_schedule": {
+      "name": "Read schedule",
+      "description": "Read the current program week from the cloud without changing it.",
+      "fields": {
+        "entity_id": {
+          "name": "Thermostat",
+          "description": "K-Domo climate entity."
+        }
+      }
+    },
+    "set_schedule": {
+      "name": "Save schedule",
+      "description": "Replace the current program week only if the revision matches, then verify confirmation.",
+      "fields": {
+        "entity_id": {
+          "name": "Thermostat",
+          "description": "K-Domo climate entity."
+        },
+        "revision": {
+          "name": "Read revision",
+          "description": "Hash from get_schedule; required to prevent overwriting concurrent edits."
+        },
+        "days": {
+          "name": "Complete week",
+          "description": "Seven day/slots objects. Sunday=0. Each slot has level and end in minutes; end of day=1440."
+        }
       }
     }
   }

@@ -20,6 +20,7 @@ from .const import (
     CONF_PLANT_ID,
     CONF_PLANT_NAME,
     CONF_POLL_INTERVAL,
+    CONF_SCHEDULE_WRITE_ENABLED,
     CONF_WRITE_ENABLED,
     DEFAULT_POLL_INTERVAL,
     DOMAIN,
@@ -146,6 +147,9 @@ class KdomoOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_WRITE_ENABLED, default=options.get(CONF_WRITE_ENABLED, False)): bool,
+                    vol.Optional(
+                        CONF_SCHEDULE_WRITE_ENABLED, default=options.get(CONF_SCHEDULE_WRITE_ENABLED, False)
+                    ): bool,
                     vol.Required(
                         CONF_POLL_INTERVAL, default=options.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
                     ): vol.All(vol.Coerce(int), vol.Range(min=MIN_POLL_INTERVAL, max=MAX_POLL_INTERVAL)),

@@ -5,10 +5,11 @@
     "@MarcoBBo"
   ],
   "config_flow": true,
+  "dependencies": ["http"],
   "documentation": "https://github.com/MarcoBBo/ha-giacomini-kdomo/blob/main/README.md",
   "integration_type": "hub",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/MarcoBBo/ha-giacomini-kdomo/issues",
   "requirements": [],
-  "version": "0.3.0"
+  "version": "0.4.0"
 }

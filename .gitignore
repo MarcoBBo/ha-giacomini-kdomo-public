@@ -21,3 +21,5 @@ private-session/
 .storage/
 secrets.yaml
 configuration.yaml
+
+node_modules/

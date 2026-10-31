@@ -1,6 +1,6 @@
 Giacomini K-Domo
 Specifica del protocollo cloud
-Revisione 2 — 26 ottobre 2026
+Revisione 3 — 31 ottobre 2026
 
 1. Ambito e convenzioni
 
@@ -552,7 +552,19 @@ Il giorno è lunedì. Le fasce attive sono Night fino alle 05:00, Comfort fino a
 
 6: Stop. Non definisce una temperatura numerica da sostituire al setpoint.
 
-Questa mappatura riguarda il riscaldamento. Non si estende automaticamente ogni tipo di fascia al raffrescamento.
+Per il raffrescamento la mappatura è distinta:
+
+0: Comfort. Temperatura associata: coolingtempcomfort.
+
+1: Night. Temperatura associata: coolingtempnight.
+
+2: Economy. Temperatura associata: coolingtempeconomy.
+
+3: Comfort Plus. Temperatura associata: coolingtempcomfortplus.
+
+4: Stop. Non definisce una temperatura numerica da sostituire al setpoint.
+
+Un client NON DEVE riusare gli identificativi di fascia del riscaldamento per il raffrescamento.
 
 10.4 Topic 05: configurazione del programma
 

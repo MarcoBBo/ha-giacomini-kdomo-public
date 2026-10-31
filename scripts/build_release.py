@@ -18,10 +18,12 @@ ALLOWED_ROOT_FILES = {
     "requirements-test.txt",
     "requirements-test-min.txt",
     "hacs.json",
+    "package.json",
+    "package-lock.json",
     ".gitignore",
 }
 ALLOWED_DIRECTORIES = {"custom_components", "docs", "tests", "scripts", ".github"}
-ALLOWED_SUFFIXES = {".py", ".json", ".md", ".yaml", ".yml", ".txt"}
+ALLOWED_SUFFIXES = {".py", ".json", ".md", ".yaml", ".yml", ".txt", ".js", ".mjs"}
 
 
 def public_files() -> list[Path]:
@@ -31,7 +33,7 @@ def public_files() -> list[Path]:
             continue
         parts = path.relative_to(ROOT).parts
         if any(
-            part.startswith("__pycache__") or part in (".git", ".pytest_cache", ".ruff_cache")
+            part.startswith("__pycache__") or part in (".git", ".pytest_cache", ".ruff_cache", "node_modules")
             for part in parts
         ):
             continue

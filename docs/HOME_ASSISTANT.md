@@ -1,6 +1,6 @@
 # Architettura Home Assistant
 
-Architettura della release 0.3.0 alpha, aggiornata il 30 ottobre 2026.
+Architettura della release 0.4.0 alpha, aggiornata il 31 ottobre 2026.
 
 ## Perché una integrazione
 
@@ -12,12 +12,15 @@ La custom integration funziona senza Supervisor. Una eventuale futura web app po
 
 | Modulo | Responsabilità |
 | --- | --- |
-| `api.py` | HTTP asincrono aiohttp, autenticazione, discovery, letture, POST topic 02, 10 e 11 |
+| `api.py` | HTTP asincrono aiohttp, autenticazione, discovery, letture, POST topic 02, 03, 10 e 11 |
 | `models.py` | Decodifica tipizzata, enum validi, limiti, costruzione del gruppo e conferma fresca |
 | `config_flow.py` | Login, scelta impianto, blocco duplicati, riautenticazione e opzioni |
 | `coordinator.py` | Polling condiviso, errori, backoff, serializzazione delle transazioni |
 | `entity.py` | Identità stabile, registro dispositivi e disponibilità |
 | `climate.py` | Mapping HVAC e servizi clima standard |
+| `schedule.py` | Codec della settimana corrente, revisione, validazione e conferma |
+| `services.py` | Azioni HA con permessi per entità e pubblicazione del solo JavaScript statico |
+| `frontend/kdomo-schedule-card.js` | Custom card visuale, bozze e riepilogo delle modifiche |
 | `number.py` | Dieci temperature predefinite, servizi number standard e conversione unità |
 | `sensor.py` | Temperatura e umidità |
 | `binary_sensor.py` | Online riportato dal cloud |
@@ -28,7 +31,7 @@ La sessione HTTP è fornita da HA; l’integrazione non blocca l’event loop co
 
 ## ConfigEntry e identità
 
-Una ConfigEntry rappresenta un account più un impianto scelto. `data` conserva username/password, plant_id e titolo. `options` contiene solo abilitazione scritture e intervallo di polling.
+Una ConfigEntry rappresenta un account più un impianto scelto. `data` conserva username/password, plant_id e titolo. `options` contiene abilitazione scritture generali, abilitazione separata delle pianificazioni e intervallo di polling.
 
 La unique_id della ConfigEntry combina SHA-256 dello username esatto con plant_id. Non è una cifratura e non sostituisce la protezione della configurazione. Serve a evitare l’email in questo identificativo e impedire aggiunte duplicate dello stesso account/impianto. Non si normalizza la maiuscola dello username senza sapere se il servizio lo consenta. Alias diversi dello stesso account possono quindi eludere il blocco duplicati: un limite noto in assenza di account_id stabile verificato.
 
@@ -82,3 +85,20 @@ I test HTTP usano un server aiohttp locale; il test completo attraversa configur
 - [Home Assistant Core, tag 2026.10.4](https://github.com/home-assistant/core/tree/2026.10.4), commit `357cae5c598dfcd7a0ea7dc5b1facccd4ec6037b`.
 
 Le scelte del protocollo derivano dalle nostre prove e dall’APK; i riferimenti HA spiegano i meccanismi dell’integrazione, non convalidano il protocollo privato K-Domo.
+
+
+## Pianificazioni nella 0.4.0
+
+Il cloud resta l’unica sorgente della pianificazione nativa. Le letture includono progDay0…progDay6; il codec accetta solo una settimana completa associata al programma attivo. Non vengono memorizzate settimane inventate, avviati timer di regolazione HA o selezionati altri programmi per recuperarne i dati.
+
+I dati completi sono restituiti dall’azione kdomo.get_schedule; gli attributi climate espongono soltanto revisione, nome del programma e disponibilità delle scritture dedicate, evitando di registrare ripetutamente l’intera settimana nel Recorder. Non si calcolano fascia corrente e prossima transizione usando un fuso orario presunto. Non è stata aggiunta una piattaforma calendar.
+
+kdomo.set_schedule richiede sette giorni e la revisione del contenuto letto. La revisione include metadati, giorni, scala e temperature dei livelli; viene ricalcolata dopo una nuova lettura dentro il lock condiviso. I giorni non modificati conservano tutti i campi wire, compreso il padding. Quelli modificati vengono serializzati in un messaggio completeschedule di 116 campi. La conferma confronta tutti i giorni e i metadati e richiede timestamp post-comando per i giorni cambiati. Non vengono modificati modalità, stato, programma attivo o preset.
+
+Il controllo di revisione riduce le sovrascritture ma non rende il server atomico rispetto a un altro client tra GET e POST. Timeout o mancata conferma richiedono rilettura e decisione esplicita; nessun reinvio o ripristino automatico.
+
+Il browser usa la sessione HA già autenticata, senza ricevere credenziali K-Domo o chiamare direttamente il cloud. Il backend controlla POLICY_READ/POLICY_CONTROL sulla singola entità, valida la ConfigEntry caricata e ricava il dispositivo dal registro; il browser non può scegliere seriali o topic arbitrari.
+
+Il frontend è incluso nel componente e pubblicato con async_register_static_paths a /kdomo/kdomo-schedule-card.js. Il file è statico e non contiene dati privati; la registrazione della risorsa dashboard è un passaggio documentato e non modifica automaticamente le dashboard dell’utente. Le bozze vivono solo nell’istanza della scheda nel browser. I testi cloud vengono inseriti con textContent, senza interpretarli come HTML. La selezione di una stanza nella configurazione della scheda usa le entità climate K-Domo presenti in HA.
+
+Il collaudo fisico del gruppo 03 e la verifica visuale nella specifica istanza HA restano distinti dai test offline e DOM. I limiti del minuto 23:59, l’ora legale e i programmi inattivi non vengono presentati come risolti.

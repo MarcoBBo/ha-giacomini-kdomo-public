@@ -140,4 +140,4 @@ async def test_options(hass, entry):
         },
     )
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert entry.options == {"write_enabled": True, "poll_interval": 120}
+    assert entry.options == {"write_enabled": True, "poll_interval": 120, "schedule_write_enabled": False}

@@ -43,7 +43,8 @@
         "description": "Abilita i controlli quando vuoi usarli. I comandi conservano la pianificazione. Il manuale temporaneo può terminare al cambio di fascia nativo. La sola variazione del setpoint conserva lo stato acceso/spento.",
         "data": {
           "write_enabled": "Abilita i controlli dei termostati",
-          "poll_interval": "Intervallo di lettura (60–600 secondi)"
+          "poll_interval": "Intervallo di lettura (60–600 secondi)",
+          "schedule_write_enabled": "Abilita modifica pianificazioni (sperimentale)"
         }
       }
     }
@@ -92,6 +93,36 @@
       },
       "coolingtempeconomy": {
         "name": "Raffrescamento Economy"
+      }
+    }
+  },
+  "services": {
+    "get_schedule": {
+      "name": "Leggi pianificazione",
+      "description": "Legge dal cloud la settimana completa del programma corrente, senza modificarla.",
+      "fields": {
+        "entity_id": {
+          "name": "Termostato",
+          "description": "Entità climate K-Domo."
+        }
+      }
+    },
+    "set_schedule": {
+      "name": "Salva pianificazione",
+      "description": "Sostituisce la settimana del programma corrente, solo se la revisione corrisponde, e ne verifica la conferma.",
+      "fields": {
+        "entity_id": {
+          "name": "Termostato",
+          "description": "Entità climate K-Domo."
+        },
+        "revision": {
+          "name": "Revisione letta",
+          "description": "Hash restituito da get_schedule; obbligatorio per evitare sovrascritture."
+        },
+        "days": {
+          "name": "Settimana completa",
+          "description": "Sette oggetti day/slots. Domenica=0. Ogni slot ha level ed end in minuti; fine giornata=1440."
+        }
       }
     }
   }
