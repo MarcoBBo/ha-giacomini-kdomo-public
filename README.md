@@ -32,7 +32,7 @@ Le versioni HA coperte dalla suite sono 2026.2.3 e 2026.10.4. Il collaudo sulla 
 
 ## Installazione
 
-Il repository è destinato inizialmente all’accesso privato. Usare l’installazione manuale con un account GitHub autorizzato.
+Questa integrazione è in versione alpha. Prima di installarla, leggere i limiti e verificare la compatibilità con il proprio impianto.
 
 1. Scaricare il repository oppure clonarlo:
 
@@ -45,7 +45,9 @@ git clone https://github.com/MarcoBBo/ha-giacomini-kdomo.git
 4. Aprire Impostazioni → Dispositivi e servizi → Aggiungi integrazione.
 5. Cercare Giacomini K-Domo e seguire la configurazione.
 
-HACS richiede un repository pubblico. L’installazione tramite HACS verrà documentata quando sarà autorizzata una distribuzione pubblica; il progetto non è incluso nel catalogo predefinito.
+### HACS / Marketplace
+
+Aggiungere `https://github.com/MarcoBBo/ha-giacomini-kdomo` come repository personalizzato di tipo **Integrazione**, quindi scaricare la versione desiderata e riavviare Home Assistant. Il progetto non è presente nel catalogo predefinito. In Home Assistant 2026.11 e successivi, verificare la disponibilità del Marketplace integrato. Conservare la configurazione esistente quando si aggiorna; non rimuovere e ricreare l'integrazione. La scheda visuale richiede inoltre la registrazione della risorsa descritta sotto.
 
 ## Configurazione
 
