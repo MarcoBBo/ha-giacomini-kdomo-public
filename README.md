@@ -4,7 +4,7 @@ Integrazione indipendente **Giacomini Home Assistant** per termostati **K-Domo**
 
 **English:** An unofficial Home Assistant custom integration for Giacomini K-Domo thermostats. Monitor temperature and humidity, control heating and resume the thermostat's schedule through the K-Domo cloud. [Installation](#installazione) · [Compatibility](#compatibilità) · [Report an issue](https://github.com/MarcoBBo/ha-giacomini-kdomo-public/issues)
 
-Versione 0.4.3 alpha. I controlli partono disabilitati e si attivano dalle opzioni. Le pianificazioni vengono modificate soltanto tramite le azioni dedicate e con l’opzione specifica abilitata.
+Versione 0.4.4 alpha. I controlli partono disabilitati e si attivano dalle opzioni. Le pianificazioni vengono modificate soltanto tramite le azioni dedicate e con l’opzione specifica abilitata.
 
 Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approvato da Giacomini. L'accesso richiede un account K-Domo e la connessione Internet: non è un'integrazione locale e potrebbe smettere di funzionare se il servizio cloud cambia.
 

@@ -23,7 +23,7 @@ ALLOWED_ROOT_FILES = {
     ".gitignore",
 }
 ALLOWED_DIRECTORIES = {"custom_components", "docs", "tests", "scripts", ".github"}
-ALLOWED_SUFFIXES = {".py", ".json", ".md", ".yaml", ".yml", ".txt", ".js", ".mjs"}
+ALLOWED_SUFFIXES = {".py", ".json", ".md", ".yaml", ".yml", ".txt", ".js", ".mjs", ".png"}
 
 
 def public_files() -> list[Path]:

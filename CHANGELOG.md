@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.4 — 2026-11-03
+
+Icona generica per il catalogo della community, metadati e documentazione migliorati; nessuna modifica alla logica dei comandi.
+
 ## 0.4.3 — 2026-11-03
 
 La conferma del ritorno esplicito ad AUTO ammette il setpoint ricalcolato dal programma, purché presente e valido nella scala invariata. Restano obbligatori stato online, corrispondenza di mode/status/program/fancoil e timestamp freschi dei campi modificati. Le altre operazioni conservano il confronto rigoroso del setpoint; nessun reinvio automatico. Le richieste già soddisfatte non inviano comandi.
