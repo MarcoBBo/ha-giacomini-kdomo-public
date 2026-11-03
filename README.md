@@ -1,10 +1,12 @@
 # Giacomini K-Domo per Home Assistant
 
-Integrazione indipendente per controllare i termostati Giacomini K-Domo attraverso il cloud. Espone dispositivi, entità clima, temperatura, umidità e stato della connessione in Home Assistant.
+Integrazione indipendente **Giacomini Home Assistant** per termostati **K-Domo**: lettura della temperatura e dell'umidità, controllo del riscaldamento, ritorno al programma automatico e gestione delle fasce orarie tramite il cloud K-Domo.
+
+**English:** An unofficial Home Assistant custom integration for Giacomini K-Domo thermostats. Monitor temperature and humidity, control heating and resume the thermostat's schedule through the K-Domo cloud. [Installation](#installazione) · [Compatibility](#compatibilità) · [Report an issue](https://github.com/MarcoBBo/ha-giacomini-kdomo-public/issues)
 
 Versione 0.4.3 alpha. I controlli partono disabilitati e si attivano dalle opzioni. Le pianificazioni vengono modificate soltanto tramite le azioni dedicate e con l’opzione specifica abilitata.
 
-Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approvato da Giacomini.
+Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approvato da Giacomini. L'accesso richiede un account K-Domo e la connessione Internet: non è un'integrazione locale e potrebbe smettere di funzionare se il servizio cloud cambia.
 
 ## Funzioni
 
@@ -93,7 +95,7 @@ data:
   hvac_mode: auto
 ```
 
-Questa azione accende il termostato e riprende il programma selezionato in K-Domo. La conferma consente il setpoint ricalcolato dal programma, purché presente e valido nella scala invariata; gli altri campi e la freschezza delle modifiche restano verificati. La correzione è testata solo su dati sintetici, non sul dispositivo reale.
+Questa azione accende il termostato e riprende il programma selezionato in K-Domo. La conferma consente il setpoint ricalcolato dal programma, purché presente e valido nella scala invariata; gli altri campi e la freschezza delle modifiche restano verificati. Il ritorno in automatico della 0.4.3 è stato verificato anche su un termostato reale; ciò non garantisce il funzionamento su tutti i modelli o firmware.
 
 ### Spegnere
 
