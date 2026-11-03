@@ -82,6 +82,9 @@ async def test_complete_offline_path(hass, aiohttp_server, socket_enabled):
             )
         else:
             values.update({key: str(value) for key, value in body.items()})
+            if topic == "02" and body["mode"] == 1:
+                # A real schedule can replace the carried-over manual setpoint.
+                values["currentsetpoint"] = "21.5"
         return web.json_response({"data": {"requesttopic": topic, "expectreply": False}})
 
     app = web.Application()
@@ -173,6 +176,15 @@ async def test_complete_offline_path(hass, aiohttp_server, socket_enabled):
         assert {key: values[key] for key in climate_before} == climate_before
         for day in (0, 2, 3, 4, 5, 6):
             assert values[f"progDay{day}"] == original_days[day]
+        # Exercise the actual HA service through the HTTP client and simulated cloud.
+        with patch("custom_components.kdomo.coordinator.VERIFY_DELAYS", (0,)):
+            await hass.services.async_call(
+                "climate", "set_hvac_mode", {"entity_id": entity_id, "hvac_mode": "auto"}, blocking=True
+            )
+        assert len(commands) == 6 and topics[-1] == "02"
+        assert commands[-1]["currentsetpoint"] == "+22.0"
+        assert hass.states.get(entity_id).state == "auto"
+        assert hass.states.get(entity_id).attributes["temperature"] == 21.5
         assert await hass.config_entries.async_unload(entry.entry_id)
         await hass.async_block_till_done()
-        assert len(commands) == 5
+        assert len(commands) == 6

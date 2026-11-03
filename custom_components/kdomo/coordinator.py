@@ -137,7 +137,11 @@ class KdomoCoordinator(DataUpdateCoordinator[dict[str, Snapshot]]):
                     state = await self.client.async_state(device)
                     self._publish(device, state)
                     if (preset is None or state.scale == before.scale) and fresh_confirmation(
-                        before, state, payload, sent_at
+                        before,
+                        state,
+                        payload,
+                        sent_at,
+                        allow_auto_setpoint=preset is None and operation == "auto",
                     ):
                         return
                 raise VerificationError(

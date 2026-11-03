@@ -41,6 +41,8 @@ All’avvio si scoprono i dispositivi dell’impianto scelto e si esegue il prim
 
 ## Comandi e concorrenza
 
+Per la sola richiesta esplicita AUTO, la conferma ammette il setpoint ricalcolato dal programma, purché presente, valido e nella scala invariata; mode, status, program e fancoil devono corrispondere e i campi modificati devono avere timestamp freschi. Gli altri comandi mantengono il confronto rigoroso del setpoint. Una richiesta già soddisfatta non viene inviata. Nessun replay automatico. La correzione richiede ancora collaudo sul dispositivo reale.
+
 Un lock per ConfigEntry serializza sia l’intero polling sia una transazione di comando con verifica. Questo evita che un refresh concorrente reintroduca un vecchio snapshot dopo la conferma. Le piattaforme di lettura non avviano polling autonomi. La piattaforma clima limita inoltre la concorrenza dei servizi a una operazione.
 
 La serializzazione non impedisce a un’altra app o al termostato di cambiare impostazioni fra GET e POST. Il backend non ha esposto un controllo di versione verificato. Non esiste quindi una garanzia di atomicità fra client diversi.

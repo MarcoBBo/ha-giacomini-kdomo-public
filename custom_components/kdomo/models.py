@@ -217,9 +217,27 @@ def fresh_confirmation(
     after: Snapshot,
     payload: dict[str, Any],
     sent_at: float,
+    *,
+    allow_auto_setpoint: bool = False,
 ) -> bool:
     """Require desired values and post-command timestamps for changed parameters."""
-    if not after.online or not values_match(after, payload):
+    if not after.online or after.error:
+        return False
+    if allow_auto_setpoint:
+        scale = after.scale
+        if (
+            payload.get("mode") != 1
+            or "currentsetpoint" not in payload
+            or scale not in (0, 1)
+            or scale != before.scale
+        ):
+            return False
+        try:
+            format_target(after.values.get("currentsetpoint"), scale)
+        except ProtocolError:
+            return False
+        payload = {key: value for key, value in payload.items() if key != "currentsetpoint"}
+    if not values_match(after, payload):
         return False
     for key, value in payload.items():
         try:

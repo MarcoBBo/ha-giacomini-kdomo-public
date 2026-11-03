@@ -2,7 +2,7 @@
 
 Integrazione indipendente per controllare i termostati Giacomini K-Domo attraverso il cloud. Espone dispositivi, entità clima, temperatura, umidità e stato della connessione in Home Assistant.
 
-Versione 0.4.2 alpha. I controlli partono disabilitati e si attivano dalle opzioni. Le pianificazioni vengono modificate soltanto tramite le azioni dedicate e con l’opzione specifica abilitata.
+Versione 0.4.3 alpha. I controlli partono disabilitati e si attivano dalle opzioni. Le pianificazioni vengono modificate soltanto tramite le azioni dedicate e con l’opzione specifica abilitata.
 
 Il progetto usa un’interfaccia cloud non ufficiale. Non è affiliato o approvato da Giacomini.
 
@@ -93,7 +93,7 @@ data:
   hvac_mode: auto
 ```
 
-Questa azione accende il termostato e riprende il programma selezionato in K-Domo.
+Questa azione accende il termostato e riprende il programma selezionato in K-Domo. La conferma consente il setpoint ricalcolato dal programma, purché presente e valido nella scala invariata; gli altri campi e la freschezza delle modifiche restano verificati. La correzione è testata solo su dati sintetici, non sul dispositivo reale.
 
 ### Spegnere
 
@@ -128,7 +128,7 @@ Cambiare una temperatura predefinita cambia il livello usato dalle fasce che lo 
 
 La modifica usa i gruppi cloud 10/11: lettura preventiva dell'intero gruppo, conservazione delle altre temperature e dei selettori di regolazione/geofence, un solo invio e conferma tramite rilettura. Se mancano campi necessari, l'azione fallisce senza inviare il comando. I campi assenti o non numerici e le scale sconosciute rendono indisponibili i relativi controlli. I valori non vengono inventati.
 
-Le nuove scritture sono coperte da test su cloud simulato; il collaudo fisico dei gruppi 10/11 resta da eseguire. Il problema già osservato nella conferma del setpoint climate con termostato spento/in automatico non viene risolto da questa versione.
+Le scritture sono coperte da test su cloud simulato; il collaudo fisico dei gruppi 10/11 resta da eseguire. La modifica 0.4.3 riguarda soltanto la conferma della richiesta esplicita AUTO, non altri eventuali problemi di conferma del setpoint climate.
 
 ### Aggiornamento da 0.1.0 o 0.3.0
 
@@ -147,14 +147,14 @@ entities:
   - climate.padronale
 ```
 
-Omettere `entities` per mostrare i termostati K-Domo rilevati. La scheda usa lo stesso modulo JavaScript della scheda settimanale. Dopo l'aggiornamento ricaricare il browser; se è registrata una risorsa con una versione precedente, aggiornarla a `?v=0.4.2` per evitare cache obsolete. I controlli della 0.4.2 richiedono un collaudo sulla propria istanza.
+Omettere `entities` per mostrare i termostati K-Domo rilevati. La scheda usa lo stesso modulo JavaScript della scheda settimanale. Dopo l'aggiornamento ricaricare il browser; se è registrata una risorsa con una versione precedente, aggiornarla a `?v=0.4.3` per evitare cache obsolete. I controlli della 0.4.3 richiedono un collaudo sulla propria istanza.
 
 La scheda è inclusa nel componente e viene servita da Home Assistant. Non richiede un sito esterno, un account aggiuntivo, una modifica al codice Core o una seconda copia del JavaScript in www.
 
-Dopo l’installazione o l’aggiornamento alla 0.4.2:
+Dopo l’installazione o l’aggiornamento alla 0.4.3:
 
 1. Aprire Impostazioni → Dashboard → menu → Risorse, con la modalità avanzata del profilo se necessaria.
-2. Aggiungere /kdomo/kdomo-schedule-card.js?v=0.4.2 come modulo JavaScript. Se le risorse della propria istanza sono gestite in YAML, aggiungere lì la stessa risorsa senza cambiare modalità.
+2. Aggiungere /kdomo/kdomo-schedule-card.js?v=0.4.3 come modulo JavaScript. Se le risorse della propria istanza sono gestite in YAML, aggiungere lì la stessa risorsa senza cambiare modalità.
 3. Ricaricare il browser e aggiungere alla dashboard la scheda “K-Domo · Programmazione”. Selezionare il termostato nell’editor della scheda.
 
 Configurazione equivalente:

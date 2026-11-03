@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3 — 2026-11-03
+
+La conferma del ritorno esplicito ad AUTO ammette il setpoint ricalcolato dal programma, purché presente e valido nella scala invariata. Restano obbligatori stato online, corrispondenza di mode/status/program/fancoil e timestamp freschi dei campi modificati. Le altre operazioni conservano il confronto rigoroso del setpoint; nessun reinvio automatico. Le richieste già soddisfatte non inviano comandi.
+
+Verifiche su dati sintetici; nessuna installazione né prova sul dispositivo reale. Non risolve altri possibili problemi di conferma del setpoint.
+
 ## 0.4.2 — 2026-10-31
 
 La scheda compatta mostra umidità e icone colorate per le modalità spento, acceso e automatico.

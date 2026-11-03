@@ -87,6 +87,46 @@ async def test_noop_sends_nothing(hass, entry, mock_client):
     mock_client.async_send_settings.assert_not_awaited()
 
 
+async def test_auto_recalculated_setpoint_is_confirmed(hass, entry, mock_client):
+    entry.add_to_hass(hass)
+    hass.config_entries.async_update_entry(entry, options={"write_enabled": True})
+    coordinator = await setup(hass, entry)
+    mock_client.async_state.side_effect = [
+        snapshot(mode=2, status=1),
+        snapshot(mode=1, status=1, currentsetpoint=19, when=1003),
+    ]
+    with (
+        patch("custom_components.kdomo.coordinator.time.time", return_value=1002),
+        patch("custom_components.kdomo.coordinator.VERIFY_DELAYS", (0,)),
+    ):
+        await coordinator.async_command(DEVICE, operation="auto")
+    mock_client.async_send_settings.assert_awaited_once()
+    assert coordinator.data[DEVICE.key].number("currentsetpoint") == 19
+
+
+async def test_auto_noop_does_not_send(hass, entry, mock_client):
+    entry.add_to_hass(hass)
+    hass.config_entries.async_update_entry(entry, options={"write_enabled": True})
+    coordinator = await setup(hass, entry)
+    mock_client.async_state.return_value = snapshot(mode=1, status=1)
+    await coordinator.async_command(DEVICE, operation="auto")
+    mock_client.async_send_settings.assert_not_awaited()
+
+
+async def test_on_in_auto_does_not_accept_recalculated_setpoint(hass, entry, mock_client):
+    entry.add_to_hass(hass)
+    hass.config_entries.async_update_entry(entry, options={"write_enabled": True})
+    coordinator = await setup(hass, entry)
+    mock_client.async_state.side_effect = [snapshot(), snapshot(status=1, currentsetpoint=19, when=1003)]
+    with (
+        patch("custom_components.kdomo.coordinator.time.time", return_value=1002),
+        patch("custom_components.kdomo.coordinator.VERIFY_DELAYS", (0,)),
+        pytest.raises(HomeAssistantError, match="not confirmed"),
+    ):
+        await coordinator.async_command(DEVICE, operation="on")
+    mock_client.async_send_settings.assert_awaited_once()
+
+
 async def test_diagnostics_whitelist(hass, entry, mock_client):
     await setup(hass, entry)
     result = await async_get_config_entry_diagnostics(hass, entry)
